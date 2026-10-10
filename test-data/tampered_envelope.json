@@ -1,0 +1,7 @@
+{
+  "format": "ACNS-DSIG",
+  "version": 1,
+  "manifest": "eyJ2IjoxLCJkb2NOYW1lIjoidGVzdC50eHQiLCJkb2NTaXplIjoxMCwiaGFzaEFsZyI6IlNIQS0yNTYiLCJkb2NIYXNoIjoiWVdScFpHVmpaR0Z6WVdScFpHVmpaR0Z6WVdScFpHVmpaR0Z6WW1FPSIsInNpZ0FsZyI6IlJTQVN低下LVBTUy1TSEEyNTYtTUdGMVNIQTI1Ni1TMzIiLCJrZXlJZCI6ImFiY2RlZiIsInNpZ25lZEF0IjoiMjAyNi0xMC0xMFQwMDowMDowMFoiLCJub25jZSI6ImJtOXVZMlU9Iiwic2lnbmVyIjoiVGFtcGVyZWQgU2lnbmVyIn0=",
+  "signature": "dGFtcGVyZWRfc2lnbmF0dXJlX2J5dGVz",
+  "publicKey": "dGFtcGVyZWRfcHVibGljX2tleQ=="
+}

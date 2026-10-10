@@ -1,0 +1,30 @@
+```mermaid
+graph TD
+    subgraph Client["Signer & Verifier Clients"]
+        CLI["Offline CLI (dsig-cli)"]
+        Browser["Web Browser (Thymeleaf UI)"]
+    end
+
+    subgraph SecurityBoundary["Network Security Boundary (TLS 1.3)"]
+        Server["Spring Boot 3 Web Application (dsig-server)"]
+    end
+
+    subgraph CoreEngine["Cryptographic Core (dsig-core)"]
+        HashSvc["HashService (Streaming SHA-256)"]
+        SigSvc["SignatureService (RSASSA-PSS 3072-bit)"]
+        KeySvc["KeyService & KeyStorage (PBES2 AES-256)"]
+        Codec["EnvelopeCodec (Strict JSON)"]
+        VerifySvc["VerificationService (10-Step Decision Tree)"]
+    end
+
+    subgraph Persistence["Storage & Audit Layer"]
+        DB[(H2 Database: Users, Trust Store, History)]
+        AuditLog["Audit Chain (SHA-256 Chained Hash Log)"]
+        KeyFiles[Encrypted PKCS#8 Key Files]
+    end
+
+    CLI --> CoreEngine
+    Browser -->|HTTPS / TLS 1.3| Server
+    Server --> CoreEngine
+    Server --> Persistence
+```

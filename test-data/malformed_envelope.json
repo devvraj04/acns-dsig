@@ -1,0 +1,7 @@
+{
+  "format": "ACNS-DSIG",
+  "version": 1,
+  "manifest": "NOT_VALID_BASE64_!!!",
+  "signature": "MALFORMED_SIG",
+  "publicKey": "INVALID_PUB"
+}

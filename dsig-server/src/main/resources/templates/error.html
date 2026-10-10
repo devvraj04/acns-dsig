@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Error')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container" style="max-width: 550px;">
+    <div class="card" style="text-align: center;">
+        <h2 class="card-title" style="color: var(--danger);">An Error Occurred</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;" th:text="${errorMessage}">
+            An unexpected error occurred while processing your request.
+        </p>
+        <div style="background: #000; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Incident Reference ID: </span>
+            <code style="color: var(--accent-blue);" th:text="${errorRef}">UNKNOWN</code>
+        </div>
+        <a th:href="@{/dashboard}" class="btn btn-primary">Return to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

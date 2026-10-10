@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Verification Result')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container" style="max-width: 800px;">
+    <div class="card">
+        <h2 class="card-title">Verification Outcome</h2>
+
+        <!-- Status Badges -->
+        <div style="margin-bottom: 1.5rem;">
+            <span th:if="${result.resultCode.name() == 'VALID_TRUSTED'}" class="badge badge-success" style="font-size: 1.1rem; padding: 0.6rem 1.2rem;">
+                ✓ VALID &amp; TRUSTED
+            </span>
+            <span th:if="${result.resultCode.name() == 'VALID_UNTRUSTED_SIGNER'}" class="badge badge-warning" style="font-size: 1.1rem; padding: 0.6rem 1.2rem;">
+                ⚠ VALID SIGNATURE (UNTRUSTED SIGNER)
+            </span>
+            <span th:if="${result.resultCode.name() == 'DOCUMENT_TAMPERED'}" class="badge badge-danger" style="font-size: 1.1rem; padding: 0.6rem 1.2rem;">
+                ✗ DOCUMENT TAMPERED
+            </span>
+            <span th:if="${result.resultCode.name() != 'VALID_TRUSTED' and result.resultCode.name() != 'VALID_UNTRUSTED_SIGNER' and result.resultCode.name() != 'DOCUMENT_TAMPERED'}"
+                  class="badge badge-danger" style="font-size: 1.1rem; padding: 0.6rem 1.2rem;"
+                  th:text="${'✗ ' + result.resultCode}">
+            </span>
+        </div>
+
+        <div style="padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;"
+             th:styleappend="${result.resultCode.name() == 'VALID_TRUSTED'} ? 'background: rgba(34, 197, 94, 0.1); border: 1px solid var(--success);' : (${result.resultCode.name() == 'VALID_UNTRUSTED_SIGNER'} ? 'background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning);' : 'background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger);')">
+            <p style="font-weight: 500;" th:text="${result.message}"></p>
+        </div>
+
+        <!-- Verification Details Table -->
+        <table class="data-table">
+            <tbody>
+                <tr>
+                    <td style="width: 30%; color: var(--text-muted);">Document Name</td>
+                    <td style="font-weight: 600;" th:text="${result.documentName ?: 'N/A'}"></td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-muted);">Document Size</td>
+                    <td th:text="${result.documentSize + ' bytes'}"></td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-muted);">Signer Name</td>
+                    <td th:text="${result.signerName ?: 'N/A'}"></td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-muted);">Key Fingerprint</td>
+                    <td class="digest-box" th:text="${result.keyFingerprint ?: 'N/A'}"></td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-muted);">Trust Store Status</td>
+                    <td>
+                        <span th:if="${result.trustStatus.name() == 'TRUSTED'}" class="badge badge-success">TRUSTED</span>
+                        <span th:if="${result.trustStatus.name() == 'UNTRUSTED' or result.trustStatus.name() == 'UNKNOWN'}" class="badge badge-warning" th:text="${result.trustStatus}">UNTRUSTED</span>
+                        <span th:if="${result.trustStatus.name() == 'REVOKED' or result.trustStatus.name() == 'RETIRED'}" class="badge badge-danger" th:text="${result.trustStatus}">REVOKED</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-muted);">Signed Timestamp</td>
+                    <td th:text="${result.signedAt ?: 'N/A'}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Hash Comparison (especially for Tamper Visualization) -->
+        <div style="margin-top: 1.5rem;">
+            <h4 style="margin-bottom: 0.75rem;">Cryptographic Digest Comparison</h4>
+            <div style="margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">Authentic Signed Manifest Digest:</div>
+            <div class="digest-box" th:text="${result.signedDocHash ?: 'N/A'}"></div>
+
+            <div style="margin: 0.75rem 0 0.5rem 0; font-size: 0.85rem; color: var(--text-muted);">Recomputed Document Digest:</div>
+            <div class="digest-box"
+                 th:styleappend="${result.resultCode.name() == 'DOCUMENT_TAMPERED'} ? 'color: var(--danger); border-color: var(--danger);' : ''"
+                 th:text="${result.recomputedDocHash ?: 'N/A'}"></div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <a th:href="@{/verify}" class="btn btn-primary">&larr; Verify Another Document</a>
+            <a th:href="@{/history}" class="btn" style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-main);">View History</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

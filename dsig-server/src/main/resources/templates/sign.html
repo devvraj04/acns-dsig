@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sign Document')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container" style="max-width: 650px;">
+    <div class="card">
+        <h2 class="card-title">Sign Digital Document</h2>
+        <div th:replace="~{fragments/flash :: flash}"></div>
+
+        <form id="signForm" th:action="@{/sign}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="document">Select Document</label>
+                <input type="file" id="document" name="document" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="keyId">Signing Key</label>
+                <select id="keyId" name="keyId" class="form-control" required>
+                    <option th:each="k : ${keys}" th:value="${k.keyId}" th:text="${k.label + ' (' + k.keyId.substring(0, 8) + '...)'}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="passphrase">Private Key Passphrase</label>
+                <input type="password" id="passphrase" name="passphrase" class="form-control" required>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="download" name="download" value="true" checked>
+                <label for="download" style="margin-bottom: 0;">Automatically download .dsig.json signature envelope</label>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Document</button>
+        </form>
+
+        <div th:if="${signResult}" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <h3>Signature Generated</h3>
+            <p style="margin: 0.5rem 0;">SHA-256 Digest:</p>
+            <div class="digest-box" th:text="${signResult.documentHash}"></div>
+            <p style="margin: 0.5rem 0;">Key Fingerprint:</p>
+            <div class="digest-box" th:text="${signResult.keyFingerprint}"></div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/sign.js}"></script>
+</body>
+</html>

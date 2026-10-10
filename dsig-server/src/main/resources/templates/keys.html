@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Keys')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container">
+    <div class="card">
+        <h2 class="card-title">Generate RSA-3072 Key Pair</h2>
+        <div th:replace="~{fragments/flash :: flash}"></div>
+
+        <form th:action="@{/keys/generate}" method="post">
+            <div class="form-group">
+                <label for="label">Key Label / Friendly Name</label>
+                <input type="text" id="label" name="label" class="form-control" placeholder="e.g. Finance Signing Key" required>
+            </div>
+            <div class="form-group">
+                <label for="passphrase">Private Key Encryption Passphrase</label>
+                <input type="password" id="passphrase" name="passphrase" class="form-control" placeholder="Strong passphrase to encrypt private key at rest" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate RSA-3072 Key</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3 class="card-title">My Registered Signing Keys</h3>
+        <table class="data-table" th:if="${keys != null and !keys.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>Status</th>
+                    <th>SHA-256 Fingerprint</th>
+                    <th>Public PEM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="k : ${keys}">
+                    <td th:text="${k.label}" style="font-weight: 600;"></td>
+                    <td><span class="badge badge-success" th:text="${k.status}">ACTIVE</span></td>
+                    <td class="digest-box" th:text="${k.keyId}"></td>
+                    <td><pre style="font-size: 0.7rem; max-height: 80px; overflow-y: auto; background: #000; padding: 0.25rem;" th:text="${k.publicPem}"></pre></td>
+                </tr>
+            </tbody>
+        </table>
+        <p th:if="${keys == null or keys.isEmpty()}" style="color: var(--text-muted); margin-top: 1rem;">
+            No signing keys registered yet. Generate one above to begin signing documents.
+        </p>
+    </div>
+</div>
+</body>
+</html>

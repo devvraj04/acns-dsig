@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Audit Log')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+                <h2 class="card-title" style="margin-bottom: 0.25rem;">Cryptographic Audit Chain</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">
+                    Tamper-evident hash chain linking each administrative and cryptographic event: <code>entry_hash = SHA-256(prev_hash || seq || timestamp || user || action || detail)</code>
+                </p>
+            </div>
+            <form th:action="@{/admin/audit/verify-chain}" method="post">
+                <button type="submit" class="btn btn-primary">Verify Audit Chain</button>
+            </form>
+        </div>
+
+        <div th:if="${chainResult}" style="padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;"
+             th:styleappend="${chainResult.valid} ? 'background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success); color: var(--success);' : 'background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger);'">
+            <span style="font-weight: 600;" th:text="${chainResult.message}"></span>
+        </div>
+
+        <table class="data-table" th:if="${entries != null and !entries.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Seq</th>
+                    <th>Timestamp</th>
+                    <th>User ID</th>
+                    <th>Action</th>
+                    <th>Detail</th>
+                    <th>Previous Hash</th>
+                    <th>Entry Hash</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="e : ${entries}">
+                    <td th:text="${e.seq}"></td>
+                    <td style="font-size: 0.8rem;" th:text="${e.timestamp}"></td>
+                    <td th:text="${e.userId ?: 'SYSTEM'}"></td>
+                    <td style="font-weight: 600;" th:text="${e.action}"></td>
+                    <td style="font-size: 0.85rem;" th:text="${e.detail}"></td>
+                    <td class="digest-box" style="font-size: 0.7rem;" th:text="${e.prevHash}"></td>
+                    <td class="digest-box" style="font-size: 0.7rem;" th:text="${e.entryHash}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${entries == null or entries.isEmpty()}" style="color: var(--text-muted); margin-top: 1rem;">
+            No audit log entries recorded yet.
+        </p>
+    </div>
+</div>
+</body>
+</html>

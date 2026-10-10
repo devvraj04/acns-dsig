@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container">
+    <div class="card">
+        <h2 class="card-title">Welcome, <span th:text="${user != null ? user.username : 'User'}"></span></h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+            Secure Digital Document Authentication & Integrity Verification Platform
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="color: var(--text-muted); font-size: 0.85rem;">MY KEYS</div>
+                <div style="font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0;" th:text="${keyCount ?: 0}">0</div>
+                <a th:href="@{/keys}" style="color: var(--accent-blue); font-size: 0.85rem; text-decoration: none;">Manage Keys &rarr;</a>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="color: var(--text-muted); font-size: 0.85rem;">TRUSTED SIGNERS</div>
+                <div style="font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0;" th:text="${trustCount ?: 0}">0</div>
+                <a th:href="@{/trust}" style="color: var(--accent-blue); font-size: 0.85rem; text-decoration: none;">View Trust Store &rarr;</a>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="color: var(--text-muted); font-size: 0.85rem;">VERIFICATIONS</div>
+                <div style="font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0;" th:text="${historyCount ?: 0}">0</div>
+                <a th:href="@{/history}" style="color: var(--accent-blue); font-size: 0.85rem; text-decoration: none;">Audit History &rarr;</a>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <a th:href="@{/sign}" class="btn btn-primary">Sign a Document</a>
+            <a th:href="@{/verify}" class="btn" style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-main);">Verify Document</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

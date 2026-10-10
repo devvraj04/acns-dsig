@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Trust Store')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container">
+    <div class="card">
+        <h2 class="card-title">Pin Signer Fingerprint</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+            Explicitly pin a trusted signer's public key SHA-256 fingerprint after verifying it through an independent secure channel.
+        </p>
+        <div th:replace="~{fragments/flash :: flash}"></div>
+
+        <form th:action="@{/trust/pin}" method="post">
+            <div class="form-group">
+                <label for="fingerprint">SHA-256 Fingerprint</label>
+                <input type="text" id="fingerprint" name="fingerprint" class="form-control" placeholder="e.g. 4a2b9f..." required>
+            </div>
+            <div class="form-group">
+                <label for="label">Signer Label / Organization</label>
+                <input type="text" id="label" name="label" class="form-control" placeholder="e.g. Alice HR Department" required>
+            </div>
+            <div class="form-group">
+                <label for="note">Verification Notes</label>
+                <input type="text" id="note" name="note" class="form-control" placeholder="e.g. Verified in person / phone call">
+            </div>
+            <button type="submit" class="btn btn-primary">Pin as Trusted</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3 class="card-title">Pinned Trusted Signers</h3>
+        <table class="data-table" th:if="${signers != null and !signers.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Signer Label</th>
+                    <th>Status</th>
+                    <th>Fingerprint</th>
+                    <th>Pinned At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${signers}">
+                    <td th:text="${s.label}" style="font-weight: 600;"></td>
+                    <td>
+                        <span th:if="${s.status == 'TRUSTED'}" class="badge badge-success">TRUSTED</span>
+                        <span th:if="${s.status == 'REVOKED'}" class="badge badge-danger">REVOKED</span>
+                    </td>
+                    <td class="digest-box" th:text="${s.fingerprint}"></td>
+                    <td th:text="${s.addedAt}"></td>
+                    <td>
+                        <form th:if="${s.status == 'TRUSTED'}" th:action="@{'/trust/revoke/' + ${s.id}}" method="post">
+                            <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.75rem; font-size: 0.8rem;">Revoke</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p th:if="${signers == null or signers.isEmpty()}" style="color: var(--text-muted); margin-top: 1rem;">
+            No trusted signers pinned yet.
+        </p>
+    </div>
+</div>
+</body>
+</html>

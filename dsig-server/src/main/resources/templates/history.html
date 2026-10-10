@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Verification History')}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="container">
+    <div class="card">
+        <h2 class="card-title">Verification History</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+            Chronological audit log of all document verification attempts.
+        </p>
+
+        <table class="data-table" th:if="${records != null and !records.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Date / Time</th>
+                    <th>Document</th>
+                    <th>Result</th>
+                    <th>Trust</th>
+                    <th>Signer Key ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="r : ${records}">
+                    <td th:text="${r.verifiedAt}"></td>
+                    <td th:text="${r.docName}" style="font-weight: 600;"></td>
+                    <td>
+                        <span th:if="${r.resultCode == 'VALID_TRUSTED'}" class="badge badge-success">VALID_TRUSTED</span>
+                        <span th:if="${r.resultCode == 'VALID_UNTRUSTED_SIGNER'}" class="badge badge-warning">UNTRUSTED_SIGNER</span>
+                        <span th:if="${r.resultCode == 'DOCUMENT_TAMPERED'}" class="badge badge-danger">TAMPERED</span>
+                        <span th:if="${r.resultCode != 'VALID_TRUSTED' and r.resultCode != 'VALID_UNTRUSTED_SIGNER' and r.resultCode != 'DOCUMENT_TAMPERED'}"
+                              class="badge badge-danger" th:text="${r.resultCode}"></span>
+                    </td>
+                    <td th:text="${r.trustStatus}"></td>
+                    <td class="digest-box" th:text="${r.keyId}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${records == null or records.isEmpty()}" style="color: var(--text-muted); margin-top: 1rem;">
+            No verification records found.
+        </p>
+    </div>
+</div>
+</body>
+</html>

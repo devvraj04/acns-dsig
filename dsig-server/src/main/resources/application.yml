@@ -1,0 +1,33 @@
+server:
+  port: 8443
+  ssl:
+    enabled: false # Set true in production with generated PKCS#12 keystore
+    key-store: runtime/tls/keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    enabled-protocols: TLSv1.3
+
+spring:
+  application:
+    name: acns-dsig-server
+  datasource:
+    url: jdbc:h2:file:./runtime/acns-dsig;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 55MB
+
+dsig:
+  keys:
+    dir: runtime/keys
+  upload:
+    tmp-dir: runtime/uploads-tmp
+    max-bytes: 52428800

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+<nav th:fragment="navbar" class="navbar">
+    <a th:href="@{/dashboard}" class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+        </svg>
+        ACNS-DSIG
+    </a>
+    <ul class="nav-links" sec:authorize="isAuthenticated()">
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/keys}">Keys</a></li>
+        <li><a th:href="@{/sign}">Sign</a></li>
+        <li><a th:href="@{/verify}">Verify</a></li>
+        <li><a th:href="@{/trust}">Trust Store</a></li>
+        <li><a th:href="@{/history}">History</a></li>
+        <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/audit}">Audit</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn" style="background:transparent; color:var(--text-muted); padding:0; cursor:pointer;">Logout</button>
+            </form>
+        </li>
+    </ul>
+    <ul class="nav-links" sec:authorize="!isAuthenticated()">
+        <li><a th:href="@{/login}">Login</a></li>
+        <li><a th:href="@{/register}">Register</a></li>
+    </ul>
+</nav>
+</body>
+</html>
