@@ -2,6 +2,13 @@ server:
   port: 8080
   ssl:
     enabled: false
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: false
+        same-site: lax
+        name: JSESSIONID
 
 spring:
   datasource:
@@ -9,3 +16,15 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
+  jpa:
+    open-in-view: false
+
+dsig:
+  keys:
+    dir: runtime/demo-keys
+  upload:
+    tmp-dir: runtime/demo-uploads-tmp
+    max-bytes: 52428800
+  security:
+    rate-limit:
+      max-per-minute: 120

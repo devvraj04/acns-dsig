@@ -1,11 +1,22 @@
 server:
-  port: 8443
+  port: ${SERVER_PORT:8080}
   ssl:
-    enabled: false # Set true in production with generated PKCS#12 keystore
-    key-store: runtime/tls/keystore.p12
-    key-store-password: changeit
+    enabled: ${SSL_ENABLED:false} # Set SSL_ENABLED=true in production with generated PKCS#12 keystore (scripts/gen-cert.sh or .ps1)
+    key-store: ${SSL_KEYSTORE:runtime/tls/keystore.p12}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:changeit}
     key-store-type: PKCS12
     enabled-protocols: TLSv1.3
+    ciphers:
+      - TLS_AES_128_GCM_SHA256
+      - TLS_AES_256_GCM_SHA384
+      - TLS_CHACHA20_POLY1305_SHA256
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: ${COOKIE_SECURE:false} # set COOKIE_SECURE=true when running over HTTPS
+        same-site: strict
+        name: JSESSIONID
 
 spring:
   application:
@@ -20,6 +31,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+    open-in-view: false
   servlet:
     multipart:
       max-file-size: 50MB
@@ -30,4 +42,8 @@ dsig:
     dir: runtime/keys
   upload:
     tmp-dir: runtime/uploads-tmp
-    max-bytes: 52428800
+    max-bytes: 52428800 # 50 MB (matches spring.servlet.multipart.max-file-size)
+  security:
+    rate-limit:
+      max-per-minute: 60
+      trust-forwarded-for: false

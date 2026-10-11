@@ -28,13 +28,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public String processRegister(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam(defaultValue = "ROLE_VERIFIER") String role,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam(value = "role", defaultValue = "ROLE_VERIFIER") String role,
             Model model
     ) {
         try {
-            userService.registerUser(username, password, role);
+            String sanitizedRole = role != null ? role.trim().toUpperCase() : "ROLE_VERIFIER";
+            if (!"ROLE_VERIFIER".equals(sanitizedRole) && !"ROLE_SIGNER".equals(sanitizedRole)) {
+                throw new IllegalArgumentException("Invalid registration role. Only Verifier and Signer roles are eligible for self-registration.");
+            }
+            userService.registerUser(username, password, sanitizedRole);
             return "redirect:/login?registered";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());

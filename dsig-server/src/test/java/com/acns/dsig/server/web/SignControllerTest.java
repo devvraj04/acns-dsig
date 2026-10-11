@@ -320,4 +320,29 @@ class SignControllerTest {
                         org.hamcrest.Matchers.not(
                                 org.hamcrest.Matchers.containsString("PRIVATE KEY"))));
     }
+
+    @Test
+    @DisplayName("POST /sign — uploaded filenames with path traversal tokens are sanitized")
+    @WithMockUser(username = "testuser")
+    void processSign_sanitizesUploadedFilename() throws Exception {
+        when(uploadGuard.sanitizeFilename("../../evil_script.sh")).thenReturn("evil_script.sh");
+        when(signingAppService.signDocument(
+                eq(1L), eq(KEY_ID), any(char[].class),
+                eq("evil_script.sh"), any(), eq("testuser")))
+                .thenReturn(fakeResult);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "document", "../../evil_script.sh",
+                "application/octet-stream", "Payload".getBytes());
+
+        mockMvc.perform(multipart("/sign")
+                        .file(file)
+                        .with(csrf())
+                        .param("keyId", KEY_ID)
+                        .param("passphrase", "correct-passphrase")
+                        .param("download", "true"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition",
+                        org.hamcrest.Matchers.containsString("evil_script.sh.dsig.json")));
+    }
 }

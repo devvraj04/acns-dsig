@@ -8,6 +8,7 @@ import com.acns.dsig.server.service.KeyManagementService;
 import com.acns.dsig.server.service.SigningAppService;
 import com.acns.dsig.server.service.UserService;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,13 +66,18 @@ public class SignController {
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
         Path tempPath = null;
         try {
+            String originalName = documentFile.getOriginalFilename();
+            String safeDocName = uploadGuard != null ? uploadGuard.sanitizeFilename(originalName) : null;
+            if (safeDocName == null || safeDocName.isBlank()) {
+                safeDocName = originalName != null ? originalName : "unnamed_document";
+            }
             tempPath = uploadGuard.saveToIsolatedTempFile(documentFile);
             try (InputStream in = new FileInputStream(tempPath.toFile())) {
                 SigningService.SignResult result = signingAppService.signDocument(
                         user.getId(),
                         keyId,
                         passphrase.toCharArray(),
-                        documentFile.getOriginalFilename(),
+                        safeDocName,
                         in,
                         user.getUsername()
                 );
@@ -79,14 +85,17 @@ public class SignController {
                 if (download) {
                     byte[] envelopeBytes = result.envelopeJson().getBytes(StandardCharsets.UTF_8);
                     ByteArrayResource resource = new ByteArrayResource(envelopeBytes);
-                    String fileName = documentFile.getOriginalFilename() + ".dsig.json";
+                    String fileName = safeDocName + ".dsig.json";
+                    ContentDisposition contentDisposition = ContentDisposition.attachment()
+                            .filename(fileName, StandardCharsets.UTF_8)
+                            .build();
                     return ResponseEntity.ok()
-                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(resource);
                 }
 
-                model.addAttribute("documentName", documentFile.getOriginalFilename());
+                model.addAttribute("documentName", safeDocName);
                 model.addAttribute("signResult", result);
                 return showSignPage(userDetails, model);
             }

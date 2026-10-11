@@ -57,6 +57,7 @@ public class VerifyController {
 
         Path tempDoc = null;
         try {
+            uploadGuard.validateEnvelope(envelopeFile);
             tempDoc = uploadGuard.saveToIsolatedTempFile(documentFile);
             String envelopeJson = new String(envelopeFile.getBytes(), StandardCharsets.UTF_8);
 
