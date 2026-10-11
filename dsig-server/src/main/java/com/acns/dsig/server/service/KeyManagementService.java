@@ -63,4 +63,23 @@ public class KeyManagementService {
     public Optional<KeyPairEntity> getKey(String keyId) {
         return keyPairRepository.findById(keyId);
     }
+
+    /**
+     * Transitions a key from ACTIVE to RETIRED.
+     * Ownership is checked: only the key owner may retire their own key.
+     * Old signatures over retired keys may still be mathematically verifiable,
+     * but trust status is evaluated separately by the verification engine.
+     */
+    @Transactional
+    public void retireKey(Long requestingUserId, String keyId) {
+        KeyPairEntity key = keyPairRepository.findById(keyId)
+                .orElseThrow(() -> new IllegalArgumentException("Key not found: " + keyId));
+
+        if (!key.getOwnerId().equals(requestingUserId)) {
+            throw new SecurityException("You do not own key " + keyId + " and cannot retire it.");
+        }
+
+        key.setStatus("RETIRED");
+        keyPairRepository.save(key);
+    }
 }

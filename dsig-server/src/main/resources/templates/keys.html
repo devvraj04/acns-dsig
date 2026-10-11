@@ -3,48 +3,217 @@
 <head th:replace="~{fragments/layout :: head('Manage Keys')}"></head>
 <body>
 <nav th:replace="~{fragments/header :: navbar}"></nav>
-<div class="container">
-    <div class="card">
-        <h2 class="card-title">Generate RSA-3072 Key Pair</h2>
-        <div th:replace="~{fragments/flash :: flash}"></div>
 
-        <form th:action="@{/keys/generate}" method="post">
+<div class="container">
+
+    <!-- ── Page heading ─────────────────────────────────────────────────── -->
+    <div style="margin-bottom: 1.5rem;">
+        <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem;">RSA Key Management</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Generate RSA-3072 signing key pairs. Export public keys for verifiers to pin your fingerprint.
+            Private keys are encrypted at rest — they are never displayed or returned to the browser.
+        </p>
+    </div>
+
+    <!-- ── Flash messages ────────────────────────────────────────────────── -->
+    <div th:replace="~{fragments/flash :: flash}"></div>
+
+    <!-- ── Key generation card ────────────────────────────────────────────── -->
+    <div class="card">
+        <h2 class="card-title">Generate New RSA-3072 Key Pair</h2>
+
+        <form id="keygenForm" th:action="@{/keys/generate}" method="post"
+              aria-label="RSA key pair generation form">
+
             <div class="form-group">
-                <label for="label">Key Label / Friendly Name</label>
-                <input type="text" id="label" name="label" class="form-control" placeholder="e.g. Finance Signing Key" required>
+                <label for="label">
+                    Key Label / Friendly Name
+                    <span style="color: var(--danger);" aria-hidden="true">*</span>
+                </label>
+                <input type="text"
+                       id="label"
+                       name="label"
+                       class="form-control"
+                       placeholder="e.g. Finance Signing Key 2026"
+                       maxlength="128"
+                       required
+                       autocomplete="off"
+                       aria-required="true"
+                       aria-describedby="labelHint">
+                <div id="labelHint" class="field-hint">
+                    A descriptive name to identify this key pair in the UI.
+                </div>
             </div>
+
             <div class="form-group">
-                <label for="passphrase">Private Key Encryption Passphrase</label>
-                <input type="password" id="passphrase" name="passphrase" class="form-control" placeholder="Strong passphrase to encrypt private key at rest" required>
+                <label for="passphrase">
+                    Private Key Encryption Passphrase
+                    <span style="color: var(--danger);" aria-hidden="true">*</span>
+                </label>
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="passphrase"
+                           name="passphrase"
+                           class="form-control"
+                           placeholder="At least 8 characters"
+                           minlength="8"
+                           required
+                           autocomplete="new-password"
+                           aria-required="true"
+                           aria-describedby="passphraseHint passphraseStrength">
+                    <button type="button" class="toggle-pwd" onclick="toggleVisibility('passphrase', this)"
+                            aria-label="Toggle passphrase visibility">&#x1F441;</button>
+                </div>
+                <!-- Passphrase strength bar -->
+                <div id="passphraseStrength" class="strength-bar-container" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-label="Passphrase strength">
+                    <div id="strengthBar" class="strength-bar"></div>
+                </div>
+                <div id="passphraseHint" class="field-hint">
+                    Used to encrypt the private key at rest. Choose a strong, unique passphrase — minimum 8 characters.
+                    You must supply this passphrase every time you sign a document.
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Generate RSA-3072 Key</button>
+
+            <div class="form-group">
+                <label for="passphraseConfirm">
+                    Confirm Passphrase
+                    <span style="color: var(--danger);" aria-hidden="true">*</span>
+                </label>
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="passphraseConfirm"
+                           name="passphraseConfirm"
+                           class="form-control"
+                           placeholder="Re-enter passphrase"
+                           minlength="8"
+                           required
+                           autocomplete="new-password"
+                           aria-required="true"
+                           aria-describedby="confirmHint">
+                    <button type="button" class="toggle-pwd"
+                            onclick="toggleVisibility('passphraseConfirm', this)"
+                            aria-label="Toggle confirm passphrase visibility">&#x1F441;</button>
+                </div>
+                <div id="confirmHint" class="field-hint" aria-live="polite"></div>
+            </div>
+
+            <!-- Inline validation error (screen-reader friendly) -->
+            <div id="keygenError" class="alert alert-danger" role="alert" style="display:none;"></div>
+
+            <div style="display:flex; align-items:center; gap: 1rem; flex-wrap: wrap;">
+                <button type="submit" id="keygenSubmit" class="btn btn-primary" aria-describedby="keygenSubmitHint">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" style="margin-right:0.4rem;" aria-hidden="true">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Generate RSA-3072 Key
+                </button>
+                <div id="keygenSubmitHint" class="field-hint" style="margin:0;">
+                    Key generation may take a few seconds.
+                </div>
+            </div>
         </form>
     </div>
 
+    <!-- ── My signing keys table ──────────────────────────────────────────── -->
     <div class="card">
-        <h3 class="card-title">My Registered Signing Keys</h3>
-        <table class="data-table" th:if="${keys != null and !keys.isEmpty()}">
-            <thead>
-                <tr>
-                    <th>Label</th>
-                    <th>Status</th>
-                    <th>SHA-256 Fingerprint</th>
-                    <th>Public PEM</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="k : ${keys}">
-                    <td th:text="${k.label}" style="font-weight: 600;"></td>
-                    <td><span class="badge badge-success" th:text="${k.status}">ACTIVE</span></td>
-                    <td class="digest-box" th:text="${k.keyId}"></td>
-                    <td><pre style="font-size: 0.7rem; max-height: 80px; overflow-y: auto; background: #000; padding: 0.25rem;" th:text="${k.publicPem}"></pre></td>
-                </tr>
-            </tbody>
-        </table>
-        <p th:if="${keys == null or keys.isEmpty()}" style="color: var(--text-muted); margin-top: 1rem;">
+        <h2 class="card-title">My Signing Keys</h2>
+
+        <p th:if="${keys == null or keys.isEmpty()}"
+           style="color: var(--text-muted); padding: 1.5rem 0; text-align: center;"
+           role="status">
             No signing keys registered yet. Generate one above to begin signing documents.
         </p>
+
+        <div th:if="${keys != null and !keys.isEmpty()}" class="key-list" role="list">
+            <div th:each="k : ${keys}" class="key-item" role="listitem">
+
+                <!-- Key header row -->
+                <div class="key-header">
+                    <div style="display:flex; align-items:center; gap: 0.75rem; flex-wrap: wrap;">
+                        <!-- Status badge -->
+                        <span th:class="${k.status == 'ACTIVE'} ? 'badge badge-success' :
+                                        (${k.status == 'RETIRED'} ? 'badge badge-warning' : 'badge badge-danger')"
+                              th:text="${k.status}"
+                              th:aria-label="${'Key status: ' + k.status}">ACTIVE</span>
+                        <!-- Label -->
+                        <span class="key-label" th:text="${k.label}">Key Label</span>
+                    </div>
+                    <div class="key-meta" style="color: var(--text-muted); font-size: 0.8rem;">
+                        <span th:if="${k.createdAt != null}" th:text="'Created ' + ${#temporals.format(k.createdAt, 'yyyy-MM-dd')}">Created 2026-01-01</span>
+                    </div>
+                </div>
+
+                <!-- Fingerprint row -->
+                <div class="fingerprint-section">
+                    <div class="field-hint" style="margin-bottom:0.35rem;">SHA-256 SPKI Fingerprint</div>
+                    <div class="digest-box fingerprint-display" th:id="'fp-' + k.keyId"
+                         th:text="${k.keyId}"
+                         title="SHA-256 fingerprint of the public key">
+                    </div>
+                    <div style="display:flex; gap:0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                        <!-- Copy fingerprint -->
+                        <button type="button"
+                                class="btn btn-sm"
+                                th:data-copy="${k.keyId}"
+                                onclick="copyFromButton(this)"
+                                aria-label="Copy fingerprint to clipboard">
+                            Copy Fingerprint
+                        </button>
+                        <!-- Download public key PEM -->
+                        <a th:href="@{'/keys/' + ${k.keyId} + '/public'}"
+                           class="btn btn-sm"
+                           aria-label="Download public key PEM file for this key">
+                            &#x2B07; Export Public Key (.pem)
+                        </a>
+                        <!-- Retire key (only for ACTIVE keys) -->
+                        <form th:if="${k.status == 'ACTIVE'}"
+                              th:action="@{'/keys/' + ${k.keyId} + '/retire'}"
+                              method="post"
+                              style="display:inline;"
+                              onsubmit="return confirmRetire(event)">
+                            <button type="submit"
+                                    class="btn btn-sm btn-warning-outline"
+                                    aria-label="Retire this signing key — it will no longer be usable for new signatures">
+                                Retire Key
+                            </button>
+                        </form>
+                        <span th:if="${k.status != 'ACTIVE'}"
+                              style="color: var(--text-muted); font-size: 0.8rem; padding: 0.35rem 0; align-self: center;">
+                            This key is <span th:text="${k.status}">RETIRED</span> and cannot sign new documents.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Public key PEM (collapsed by default) -->
+                <details class="pem-details">
+                    <summary class="pem-summary">View Public Key PEM</summary>
+                    <pre class="pem-block"
+                         th:text="${k.publicPem}"
+                         aria-label="Public key in PEM format — safe to share with verifiers"></pre>
+                    <div class="field-hint" style="margin-top: 0.25rem;">
+                        &#9432; This is the public key only. The private key is never shown here.
+                    </div>
+                </details>
+
+            </div>
+        </div>
     </div>
+
+    <!-- ── Security note ─────────────────────────────────────────────────── -->
+    <div class="info-panel" role="note" aria-label="Security information">
+        <strong>Security notes:</strong>
+        <ul style="margin: 0.5rem 0 0 1.2rem; line-height: 1.8;">
+            <li>Private key bytes are <strong>encrypted at rest</strong> using PKCS#8 / PBES2 / AES-256 and never stored in the database or returned to the browser.</li>
+            <li>Share your <strong>fingerprint</strong> via a trusted side-channel (email, phone) so verifiers can pin your key identity.</li>
+            <li>Retire a key when you stop using it. Old signatures remain mathematically verifiable but their trust status is evaluated separately by verifiers.</li>
+        </ul>
+    </div>
+
 </div>
+
+<script th:src="@{/js/keys.js}"></script>
 </body>
 </html>

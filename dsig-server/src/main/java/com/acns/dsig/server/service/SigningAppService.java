@@ -45,6 +45,13 @@ public class SigningAppService {
             throw new SecurityException("User does not own this signing key");
         }
 
+        // Prevent signing with retired or revoked keys
+        if (!"ACTIVE".equalsIgnoreCase(keyEntity.getStatus())) {
+            throw new IllegalStateException(
+                    "Key '" + keyEntity.getLabel() + "' has status '" + keyEntity.getStatus() +
+                    "' and cannot be used for new signing operations.");
+        }
+
         PrivateKey privateKey = null;
         try {
             privateKey = keyStorage.loadEncryptedPrivateKey(Path.of(keyEntity.getKeyFilePath()), passphrase);

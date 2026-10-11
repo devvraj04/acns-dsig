@@ -86,6 +86,7 @@ public class SignController {
                             .body(resource);
                 }
 
+                model.addAttribute("documentName", documentFile.getOriginalFilename());
                 model.addAttribute("signResult", result);
                 return showSignPage(userDetails, model);
             }
