@@ -23,7 +23,7 @@ cd "$SAVED" >/dev/null
 WRAPPER_JAR="$APP_HOME/.mvn/wrapper/maven-wrapper.jar"
 
 if [ -f "$WRAPPER_JAR" ]; then
-  exec java -jar "$WRAPPER_JAR" "$@"
+  exec java -cp "$WRAPPER_JAR" org.apache.maven.wrapper.MavenWrapperMain "$@"
 else
   if command -v mvn >/dev/null 2>&1; then
     exec mvn "$@"

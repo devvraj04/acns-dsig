@@ -14,6 +14,7 @@ target/
 
 # Maven
 .mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
 
 # Logs & temporary files
 *.log

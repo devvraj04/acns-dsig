@@ -2,7 +2,7 @@
 @REM Maven Start Up Batch script
 @REM ----------------------------------------------------------------------------
 @IF "%DEBUG%" == "" @ECHO OFF
-@SETLOCAL LEAVE_ENVIRONMENT_VARIABLES_AS_IS
+@SETLOCAL
 SET ERROR_CODE=0
 
 @REM Set local scope for the variables with windows NT shell
@@ -55,7 +55,7 @@ ECHO Please install Maven or run with installed maven.
 GOTO error
 
 :runJar
-"%JAVA_HOME%\bin\java.exe" -Dmaven.multiModuleProjectDirectory="%MAVEN_PROJECTBASEDIR%" -jar %WRAPPER_JAR% %MAVEN_CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java.exe" -Dmaven.multiModuleProjectDirectory="%MAVEN_PROJECTBASEDIR%" -cp %WRAPPER_JAR% org.apache.maven.wrapper.MavenWrapperMain %MAVEN_CMD_LINE_ARGS%
 IF ERRORLEVEL 1 GOTO error
 GOTO end
 

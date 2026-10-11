@@ -203,7 +203,8 @@ public class HashServiceTest {
     class DiskFileHashingTests {
 
         @Test
-        @DisplayName("hashFile correctly hashes on-disk document file", @TempDir Path tempDir) throws IOException {
+        @DisplayName("hashFile correctly hashes on-disk document file")
+        void testHashFileSuccess(@TempDir Path tempDir) throws IOException {
             Path testFile = tempDir.resolve("sample.pdf");
             byte[] content = "PDF Document Mock Content for Hashing".getBytes(StandardCharsets.UTF_8);
             Files.write(testFile, content);
