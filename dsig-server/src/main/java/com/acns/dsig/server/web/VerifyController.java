@@ -5,6 +5,8 @@ import com.acns.dsig.server.persistence.User;
 import com.acns.dsig.server.security.UploadGuard;
 import com.acns.dsig.server.service.UserService;
 import com.acns.dsig.server.service.VerificationAppService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -20,9 +22,17 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
+/**
+ * Controller for Document Verification and Verification Result views.
+ *
+ * Technical Owner: Member 8 — Jay Pandya (Verification Web Interface & Trust UI)
+ * Coordinates with: Member 1 (Deven Thakkar - Verification Engine), Member 9 (Diyaan Rambhia - Upload Guard)
+ */
 @Controller
 @RequestMapping("/verify")
 public class VerifyController {
+
+    private static final Logger log = LoggerFactory.getLogger(VerifyController.class);
 
     private final VerificationAppService verificationAppService;
     private final UserService userService;
@@ -46,10 +56,20 @@ public class VerifyController {
     @PostMapping
     public String processVerification(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam("document") MultipartFile documentFile,
-            @RequestParam("envelope") MultipartFile envelopeFile,
+            @RequestParam(value = "document", required = false) MultipartFile documentFile,
+            @RequestParam(value = "envelope", required = false) MultipartFile envelopeFile,
             Model model
     ) {
+        if (documentFile == null || documentFile.isEmpty()) {
+            model.addAttribute("error", "Received document file is required.");
+            return "verify";
+        }
+
+        if (envelopeFile == null || envelopeFile.isEmpty()) {
+            model.addAttribute("error", "Signature envelope (.dsig.json) is required.");
+            return "verify";
+        }
+
         Long userId = null;
         if (userDetails != null) {
             userId = userService.findByUsername(userDetails.getUsername()).map(User::getId).orElse(null);
@@ -66,8 +86,12 @@ public class VerifyController {
                 model.addAttribute("result", result);
                 return "result";
             }
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "verify";
         } catch (Exception e) {
-            model.addAttribute("error", "Verification execution failed: " + e.getMessage());
+            log.warn("Verification process encountered an unexpected failure: {}", e.getMessage(), e);
+            model.addAttribute("error", "Verification execution failed: Invalid package format or unreadable stream.");
             return "verify";
         } finally {
             uploadGuard.cleanupTempFile(tempDoc);
