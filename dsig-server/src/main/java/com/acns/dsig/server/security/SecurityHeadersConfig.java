@@ -12,7 +12,7 @@ public final class SecurityHeadersConfig {
     private SecurityHeadersConfig() {}
 
     public static final String CSP_POLICY =
-            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';";
+            "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';";
 
     public static final String PERMISSIONS_POLICY =
             "camera=(), microphone=(), geolocation=()";

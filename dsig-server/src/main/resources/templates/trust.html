@@ -2,158 +2,184 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Trust Store')}"></head>
 <body>
-<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+    <div class="aura-layer-3" aria-hidden="true"></div>
+    <div class="aura-layer-4" aria-hidden="true"></div>
 
-<div class="container" style="max-width: 900px;">
+    <div style="position: relative; z-index: 1;" class="min-h-screen flex flex-col justify-between">
+        <div>
+            <nav th:replace="~{fragments/header :: navbar}"></nav>
 
-    <!-- ── Page Header ───────────────────────────────────────────────────── -->
-    <div style="margin-bottom: 1.5rem;">
-        <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem;">Signer Trust Store</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">
-            Explicitly pin trusted signer public key SHA-256 fingerprints. In accordance with zero-trust principles, public keys supplied inside signature packages are never trusted automatically without local pinning.
-        </p>
-    </div>
-
-    <!-- ── Flash messages & Client alerts ────────────────────────────────── -->
-    <div th:replace="~{fragments/flash :: flash}"></div>
-    <div id="pinClientError" class="alert alert-danger" style="display:none;" role="alert" aria-live="assertive"></div>
-
-    <!-- ── Pin Signer Form Card ─────────────────────────────────────────── -->
-    <div class="card">
-        <h2 class="card-title">Pin Signer Fingerprint</h2>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
-            Pin a signer's public key SHA-256 SPKI fingerprint after validating it through an independent, secure channel.
-        </p>
-
-        <form id="pinTrustForm" th:action="@{/trust/pin}" method="post" novalidate>
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <label for="fingerprint" style="margin-bottom: 0; font-weight: 600;">
-                        SHA-256 Fingerprint (64 hex characters)
-                        <span style="color: var(--danger);" aria-hidden="true">*</span>
-                    </label>
-                    <span id="fpCounter" style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">0/64 hex characters</span>
+            <main class="max-w-4xl mx-auto px-6 py-6 w-full">
+                <!-- Page Header -->
+                <div class="mb-6">
+                    <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-sky-800 bg-sky-100/80 px-2.5 py-1 rounded-md border border-sky-200/60 mb-2">
+                        <span>Trust Store</span>
+                        <span>&bull;</span>
+                        <span>Zero-Trust Fingerprint Pinning</span>
+                    </div>
+                    <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">Signer Trust Store</h1>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Explicitly pin trusted signer public key SHA-256 fingerprints. In accordance with zero-trust principles, public keys supplied inside signature packages are never trusted automatically without local pinning.
+                    </p>
                 </div>
-                <input type="text"
-                       id="fingerprint"
-                       name="fingerprint"
-                       class="form-control"
-                       th:value="${prefillFingerprint}"
-                       placeholder="e.g. 4a2b9f3e1c8d5a7b..."
-                       maxlength="64"
-                       autocomplete="off"
-                       spellcheck="false"
-                       style="font-family: monospace; font-size: 0.85rem;"
-                       required>
-                <div class="field-hint" style="color: var(--text-muted); font-size: 0.78rem; margin-top: 0.35rem;">
-                    Standard SubjectPublicKeyInfo (SPKI) SHA-256 digest in lowercase hexadecimal.
-                </div>
-            </div>
 
-            <div class="form-group">
-                <label for="label" style="font-weight: 600; margin-bottom: 0.4rem; display: block;">
-                    Signer Label / Organization
-                    <span style="color: var(--danger);" aria-hidden="true">*</span>
-                </label>
-                <input type="text"
-                       id="label"
-                       name="label"
-                       class="form-control"
-                       th:value="${prefillLabel}"
-                       placeholder="e.g. Alice HR Dept, Bob Security Operations"
-                       required>
-            </div>
+                <!-- Flash messages & Client alerts -->
+                <div th:replace="~{fragments/flash :: flash}"></div>
+                <div id="pinClientError" class="alert alert-danger glass-card border border-rose-300 text-rose-900 bg-rose-50/80 p-3 rounded-xl mb-4 text-xs font-medium" style="display:none;" role="alert" aria-live="assertive"></div>
 
-            <div class="form-group">
-                <label for="note" style="font-weight: 600; margin-bottom: 0.4rem; display: block;">
-                    Verification Channel Notes (Optional)
-                </label>
-                <input type="text"
-                       id="note"
-                       name="note"
-                       class="form-control"
-                       th:value="${prefillNote}"
-                       placeholder="e.g. Verified fingerprint out-of-band via phone call on 2026-10-11">
-            </div>
+                <!-- Pin Signer Form Card -->
+                <div class="glass-card rounded-2xl p-6 lg:p-8 mb-6">
+                    <h2 class="card-title text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-sky-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                        </svg>
+                        <span>Pin Signer Fingerprint</span>
+                    </h2>
+                    <p class="text-xs text-slate-600 mb-5">
+                        Pin a signer's public key SHA-256 SPKI fingerprint after validating it through an independent, secure channel.
+                    </p>
 
-            <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1.5rem; font-weight: 600;">
-                + Pin Signer as TRUSTED
-            </button>
-        </form>
-    </div>
-
-    <!-- ── Pinned Signers Table Card ────────────────────────────────────── -->
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-            <h3 class="card-title" style="margin-bottom: 0;">Pinned Signers Directory</h3>
-            <input type="text"
-                   id="trustSearchInput"
-                   class="search-box"
-                   placeholder="Search label, fingerprint, or notes...">
-        </div>
-
-        <table class="data-table" th:if="${signers != null and !signers.isEmpty()}">
-            <thead>
-                <tr>
-                    <th style="width: 22%;">Signer Label</th>
-                    <th style="width: 12%;">Status</th>
-                    <th>Fingerprint</th>
-                    <th style="width: 15%;">Notes</th>
-                    <th style="width: 12%;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="s : ${signers}"
-                    class="signer-row"
-                    th:data-label="${s.label}"
-                    th:data-fp="${s.fingerprint}"
-                    th:data-note="${s.note ?: ''}">
-                    <td style="font-weight: 600;" th:text="${s.label}"></td>
-                    <td>
-                        <span th:if="${s.status == 'TRUSTED'}" class="badge badge-success">&#10003; TRUSTED</span>
-                        <span th:if="${s.status == 'REVOKED'}" class="badge badge-danger">&#10007; REVOKED</span>
-                        <span th:if="${s.status != 'TRUSTED' and s.status != 'REVOKED'}" class="badge badge-warning" th:text="${s.status}"></span>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                            <span class="digest-box" style="font-size: 0.75rem; flex: 1;" th:text="${s.fingerprint}"></span>
-                            <button type="button" class="copy-btn" th:data-copy="${s.fingerprint}" title="Copy fingerprint">Copy</button>
+                    <form id="pinTrustForm" th:action="@{/trust/pin}" method="post" novalidate>
+                        <div class="form-group mb-4">
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="fingerprint" class="text-xs font-semibold uppercase tracking-wider text-slate-700 mb-0">
+                                    SHA-256 Fingerprint (64 hex characters)
+                                    <span class="text-rose-600" aria-hidden="true">*</span>
+                                </label>
+                                <span id="fpCounter" class="text-[11px] text-slate-500 font-mono">0/64 hex characters</span>
+                            </div>
+                            <input type="text"
+                                   id="fingerprint"
+                                   name="fingerprint"
+                                   class="form-control glass-input rounded-xl px-4 py-2.5 text-xs font-mono"
+                                   th:value="${prefillFingerprint}"
+                                   placeholder="e.g. 4a2b9f3e1c8d5a7b..."
+                                   maxlength="64"
+                                   autocomplete="off"
+                                   spellcheck="false"
+                                   required>
+                            <div class="field-hint text-xs text-slate-500 mt-1">
+                                Standard SubjectPublicKeyInfo (SPKI) SHA-256 digest in lowercase hexadecimal.
+                            </div>
                         </div>
-                    </td>
-                    <td style="font-size: 0.8rem; color: var(--text-muted);" th:text="${s.note ?: '—'}"></td>
-                    <td>
-                        <form th:if="${s.status == 'TRUSTED'}"
-                              th:action="@{'/trust/revoke/' + ${s.id}}"
-                              method="post"
-                              class="revoke-form"
-                              th:data-label="${s.label}">
-                            <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.75rem; font-size: 0.78rem;">
-                                Revoke
-                            </button>
-                        </form>
-                        <span th:if="${s.status != 'TRUSTED'}" style="color: var(--text-muted); font-size: 0.8rem;">
-                            Revoked
-                        </span>
-                    </td>
-                </tr>
-                <tr id="noSignersMatch" style="display:none;">
-                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
-                        No pinned signers matched your search query.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
 
-        <div th:if="${signers == null or signers.isEmpty()}" style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; color: var(--text-muted);">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-            <p style="font-size: 0.95rem; margin-bottom: 0.25rem;">No trusted signers pinned yet.</p>
-            <p style="font-size: 0.8rem;">Pin a signer's fingerprint above or use the quick-pin option from the verification outcome page.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                            <div class="form-group mb-0">
+                                <label for="label" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                                    Signer Label / Organization
+                                    <span class="text-rose-600" aria-hidden="true">*</span>
+                                </label>
+                                <input type="text"
+                                       id="label"
+                                       name="label"
+                                       class="form-control glass-input rounded-xl px-4 py-2.5 text-sm"
+                                       th:value="${prefillLabel}"
+                                       placeholder="e.g. Alice HR Dept, Bob Security Operations"
+                                       required>
+                            </div>
+
+                            <div class="form-group mb-0">
+                                <label for="note" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                                    Verification Channel Notes (Optional)
+                                </label>
+                                <input type="text"
+                                       id="note"
+                                       name="note"
+                                       class="form-control glass-input rounded-xl px-4 py-2.5 text-sm"
+                                       th:value="${prefillNote}"
+                                       placeholder="e.g. Verified fingerprint out-of-band via phone call on 2026-10-11">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all flex items-center space-x-2">
+                            <span>+ Pin Signer as TRUSTED</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Pinned Signers Table Card -->
+                <div class="glass-card rounded-2xl p-6 lg:p-8 mb-6">
+                    <div class="flex justify-between items-center mb-5 flex-wrap gap-3">
+                        <h3 class="card-title text-xl font-bold text-slate-900 m-0">Pinned Signers Directory</h3>
+                        <input type="text"
+                               id="trustSearchInput"
+                               class="search-box glass-input rounded-xl px-4 py-2 text-xs"
+                               placeholder="Search label, fingerprint, or notes...">
+                    </div>
+
+                    <div class="overflow-x-auto" th:if="${signers != null and !signers.isEmpty()}">
+                        <table class="data-table w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th class="py-2.5 px-3 text-left w-1/4">Signer Label</th>
+                                    <th class="py-2.5 px-3 text-left w-1/6">Status</th>
+                                    <th class="py-2.5 px-3 text-left">Fingerprint</th>
+                                    <th class="py-2.5 px-3 text-left w-1/5">Notes</th>
+                                    <th class="py-2.5 px-3 text-left w-24">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="s : ${signers}"
+                                    class="signer-row border-b border-slate-200/60"
+                                    th:data-label="${s.label}"
+                                    th:data-fp="${s.fingerprint}"
+                                    th:data-note="${s.note ?: ''}">
+                                    <td class="py-3 px-3 font-bold text-slate-900" th:text="${s.label}"></td>
+                                    <td class="py-3 px-3">
+                                        <span th:if="${s.status == 'TRUSTED'}" class="badge badge-success">&#10003; TRUSTED</span>
+                                        <span th:if="${s.status == 'REVOKED'}" class="badge badge-danger">&#10007; REVOKED</span>
+                                        <span th:if="${s.status != 'TRUSTED' and s.status != 'REVOKED'}" class="badge badge-warning" th:text="${s.status}"></span>
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="digest-box font-mono text-xs bg-slate-900 text-sky-300 p-2 rounded-lg flex-1 overflow-x-auto" th:text="${s.fingerprint}"></span>
+                                            <button type="button" class="copy-btn px-2.5 py-1 rounded bg-white/80 border border-slate-200 text-slate-700 text-xs hover:bg-white" th:data-copy="${s.fingerprint}" title="Copy fingerprint">Copy</button>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-3 text-xs text-slate-600" th:text="${s.note ?: '—'}"></td>
+                                    <td class="py-3 px-3">
+                                        <form th:if="${s.status == 'TRUSTED'}"
+                                              th:action="@{'/trust/revoke/' + ${s.id}}"
+                                              method="post"
+                                              class="revoke-form m-0"
+                                              th:data-label="${s.label}">
+                                            <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer">
+                                                Revoke
+                                            </button>
+                                        </form>
+                                        <span th:if="${s.status != 'TRUSTED'}" class="text-xs text-slate-400">
+                                            Revoked
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr id="noSignersMatch" style="display:none;">
+                                    <td colspan="5" class="text-center text-slate-500 py-6 text-sm">
+                                        No pinned signers matched your search query.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:if="${signers == null or signers.isEmpty()}" class="text-center py-8 text-slate-500">
+                        <svg class="w-10 h-10 mx-auto text-slate-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <p class="text-sm font-semibold text-slate-700 mb-1">No trusted signers pinned yet.</p>
+                        <p class="text-xs text-slate-500">Pin a signer's fingerprint above or use the quick-pin option from the verification outcome page.</p>
+                    </div>
+                </div>
+            </main>
         </div>
-    </div>
 
+        <footer class="max-w-7xl mx-auto px-6 py-4 w-full text-center text-xs text-slate-400">
+            ACNS-DSIG Secure Digital Document Authentication &bull; SHA-256 &bull; RSA-3072 PSS &bull; PBES2 AES-256
+        </footer>
+    </div>
 </div>
 
 <script th:src="@{/js/trust.js}"></script>

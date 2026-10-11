@@ -2,18 +2,44 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Error')}"></head>
 <body>
-<nav th:replace="~{fragments/header :: navbar}"></nav>
-<div class="container" style="max-width: 550px;">
-    <div class="card" style="text-align: center;">
-        <h2 class="card-title" style="color: var(--danger);">An Error Occurred</h2>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem;" th:text="${errorMessage}">
-            An unexpected error occurred while processing your request.
-        </p>
-        <div style="background: #000; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem;">
-            <span style="color: var(--text-muted); font-size: 0.85rem;">Incident Reference ID: </span>
-            <code style="color: var(--accent-blue);" th:text="${errorRef}">UNKNOWN</code>
+<div class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+    <div class="aura-layer-3" aria-hidden="true"></div>
+    <div class="aura-layer-4" aria-hidden="true"></div>
+
+    <div style="position: relative; z-index: 1;" class="min-h-screen flex flex-col justify-between">
+        <div>
+            <nav th:replace="~{fragments/header :: navbar}"></nav>
+
+            <main class="max-w-lg mx-auto px-6 py-12 w-full text-center">
+                <div class="glass-card rounded-2xl p-8 shadow-lg">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 mb-4 ring-4 ring-rose-50">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+                        </svg>
+                    </div>
+
+                    <h2 class="card-title text-2xl font-bold text-rose-700 mb-2">An Error Occurred</h2>
+                    <p class="text-sm text-slate-600 mb-6" th:text="${errorMessage}">
+                        An unexpected error occurred while processing your request.
+                    </p>
+
+                    <div class="bg-slate-900/90 text-slate-300 p-3 rounded-xl mb-6 text-xs font-mono border border-slate-700">
+                        <span class="text-slate-400">Incident Reference ID: </span>
+                        <code class="text-sky-300 font-bold" th:text="${errorRef}">UNKNOWN</code>
+                    </div>
+
+                    <a th:href="@{/dashboard}" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all inline-flex items-center">
+                        Return to Dashboard
+                    </a>
+                </div>
+            </main>
         </div>
-        <a th:href="@{/dashboard}" class="btn btn-primary">Return to Dashboard</a>
+
+        <footer class="max-w-7xl mx-auto px-6 py-4 w-full text-center text-xs text-slate-400">
+            ACNS-DSIG Secure Digital Document Authentication &bull; SHA-256 &bull; RSA-3072 PSS &bull; PBES2 AES-256
+        </footer>
     </div>
 </div>
 </body>

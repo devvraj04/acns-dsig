@@ -2,28 +2,54 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Login')}"></head>
 <body>
-<nav th:replace="~{fragments/header :: navbar}"></nav>
-<div class="container" style="max-width: 450px;">
-    <div class="card">
-        <h2 class="card-title">Sign In</h2>
-        <div th:if="${param.error}" class="alert alert-danger">Invalid credentials or account locked.</div>
-        <div th:if="${param.logout}" class="alert alert-success">You have been logged out securely.</div>
-        <div th:if="${param.registered}" class="alert alert-success">Account created! Please sign in.</div>
+<div class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+    <div class="aura-layer-3" aria-hidden="true"></div>
+    <div class="aura-layer-4" aria-hidden="true"></div>
 
-        <form th:action="@{/login}" method="post">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" class="form-control" required autofocus>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
-        </form>
-        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
-            Don't have an account? <a th:href="@{/register}" style="color: var(--accent-blue);">Register</a>
-        </p>
+    <div style="position: relative; z-index: 1;" class="min-h-screen flex flex-col justify-between">
+        <div>
+            <nav th:replace="~{fragments/header :: navbar}"></nav>
+
+            <main class="max-w-md mx-auto px-6 py-10 w-full">
+                <div class="glass-card rounded-2xl p-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-md ring-4 ring-white/60 mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Sign In</h2>
+                        <p class="text-xs text-slate-500 mt-1">Authenticate to access cryptographic signing &amp; verification workspace</p>
+                    </div>
+
+                    <div th:if="${param.error}" class="alert alert-danger glass-card border border-rose-300 text-rose-900 bg-rose-50/80 p-3 rounded-xl mb-4 text-xs font-medium">Invalid credentials or account locked.</div>
+                    <div th:if="${param.logout}" class="alert alert-success glass-card border border-emerald-300 text-emerald-900 bg-emerald-50/80 p-3 rounded-xl mb-4 text-xs font-medium">You have been logged out securely.</div>
+                    <div th:if="${param.registered}" class="alert alert-success glass-card border border-emerald-300 text-emerald-900 bg-emerald-50/80 p-3 rounded-xl mb-4 text-xs font-medium">Account created! Please sign in.</div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="form-group mb-4">
+                            <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Username</label>
+                            <input type="text" id="username" name="username" class="form-control glass-input rounded-xl px-4 py-2.5 text-sm" required autofocus>
+                        </div>
+                        <div class="form-group mb-5">
+                            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Password</label>
+                            <input type="password" id="password" name="password" class="form-control glass-input rounded-xl px-4 py-2.5 text-sm" required>
+                        </div>
+                        <button type="submit" class="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all">Sign In</button>
+                    </form>
+
+                    <p class="mt-5 text-xs text-slate-500 text-center">
+                        Don't have an account? <a th:href="@{/register}" class="font-semibold text-sky-700 hover:underline">Register</a>
+                    </p>
+                </div>
+            </main>
+        </div>
+
+        <footer class="max-w-7xl mx-auto px-6 py-4 w-full text-center text-xs text-slate-400">
+            ACNS-DSIG Secure Digital Document Authentication &bull; SHA-256 &bull; RSA-3072 PSS &bull; PBES2 AES-256
+        </footer>
     </div>
 </div>
 </body>

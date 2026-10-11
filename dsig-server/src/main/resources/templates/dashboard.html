@@ -2,36 +2,161 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
 <body>
-<nav th:replace="~{fragments/header :: navbar}"></nav>
-<div class="container">
-    <div class="card">
-        <h2 class="card-title">Welcome, <span th:text="${user != null ? user.username : 'User'}"></span></h2>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
-            Secure Digital Document Authentication & Integrity Verification Platform
-        </p>
+<div class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+    <div class="aura-layer-3" aria-hidden="true"></div>
+    <div class="aura-layer-4" aria-hidden="true"></div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
-            <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                <div style="color: var(--text-muted); font-size: 0.85rem;">MY KEYS</div>
-                <div style="font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0;" th:text="${keyCount ?: 0}">0</div>
-                <a th:href="@{/keys}" style="color: var(--accent-blue); font-size: 0.85rem; text-decoration: none;">Manage Keys &rarr;</a>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                <div style="color: var(--text-muted); font-size: 0.85rem;">TRUSTED SIGNERS</div>
-                <div style="font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0;" th:text="${trustCount ?: 0}">0</div>
-                <a th:href="@{/trust}" style="color: var(--accent-blue); font-size: 0.85rem; text-decoration: none;">View Trust Store &rarr;</a>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                <div style="color: var(--text-muted); font-size: 0.85rem;">VERIFICATIONS</div>
-                <div style="font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0;" th:text="${historyCount ?: 0}">0</div>
-                <a th:href="@{/history}" style="color: var(--accent-blue); font-size: 0.85rem; text-decoration: none;">Audit History &rarr;</a>
-            </div>
+    <div style="position: relative; z-index: 1;" class="min-h-screen flex flex-col justify-between">
+        <div>
+            <nav th:replace="~{fragments/header :: navbar}"></nav>
+
+            <main class="max-w-7xl mx-auto px-6 py-6 w-full">
+                <!-- Context Banner -->
+                <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-sky-800 bg-sky-100/80 px-2.5 py-1 rounded-md border border-sky-200/60 mb-2">
+                            <span>Cryptographic Workspace</span>
+                            <span>&bull;</span>
+                            <span>Signed Envelopes</span>
+                        </div>
+                        <h2 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">
+                            Welcome back, <span th:text="${user != null ? user.username : 'User'}">User</span>
+                        </h2>
+                        <p class="text-sm text-slate-600 mt-1 max-w-2xl">
+                            Enterprise detached digital signatures, SHA-256 SPKI fingerprint pinning, and tamper-evident audit chains.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <a th:href="@{/sign}" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all duration-150 flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                            </svg>
+                            <span>Sign Document</span>
+                        </a>
+                        <a th:href="@{/verify}" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-white/70 hover:bg-white border border-slate-200 shadow-2xs transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                            </svg>
+                            <span>Verify Envelope</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Metrics Overview Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Key Count -->
+                    <div class="glass-card rounded-2xl p-6 relative overflow-hidden group hover:border-sky-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">My Signing Keys</span>
+                            <div class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center text-sky-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-extrabold text-slate-900" th:text="${keyCount ?: 0}">0</div>
+                        <p class="text-xs text-slate-500 mt-1">Active RSA-3072 key pairs in keystore</p>
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                            <a th:href="@{/keys}" class="font-semibold text-sky-700 hover:text-sky-800 flex items-center space-x-1">
+                                <span>Manage Keys</span>
+                                <span>&rarr;</span>
+                            </a>
+                            <span class="text-slate-400">AES-256 Encrypted</span>
+                        </div>
+                    </div>
+
+                    <!-- Trust Count -->
+                    <div class="glass-card rounded-2xl p-6 relative overflow-hidden group hover:border-emerald-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Trusted Signers</span>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-extrabold text-slate-900" th:text="${trustCount ?: 0}">0</div>
+                        <p class="text-xs text-slate-500 mt-1">Pinned SPKI public key fingerprints</p>
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                            <a th:href="@{/trust}" class="font-semibold text-emerald-700 hover:text-emerald-800 flex items-center space-x-1">
+                                <span>View Trust Store</span>
+                                <span>&rarr;</span>
+                            </a>
+                            <span class="text-slate-400">Zero-Trust Model</span>
+                        </div>
+                    </div>
+
+                    <!-- Verifications Count -->
+                    <div class="glass-card rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Verifications Run</span>
+                            <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-extrabold text-slate-900" th:text="${historyCount ?: 0}">0</div>
+                        <p class="text-xs text-slate-500 mt-1">Document authenticity checks logged</p>
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                            <a th:href="@{/history}" class="font-semibold text-indigo-700 hover:text-indigo-800 flex items-center space-x-1">
+                                <span>Audit History</span>
+                                <span>&rarr;</span>
+                            </a>
+                            <span class="text-slate-400">Immutable Log</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Guide Card -->
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Cryptographic Operations Workflow</h3>
+                    <p class="text-xs text-slate-600 mb-6">Follow the end-to-end flow to establish identity, issue signatures, and verify documents.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass-panel-subtle p-4 rounded-xl border border-white/80">
+                            <div class="flex items-center space-x-2 text-sky-800 font-semibold text-sm mb-1.5">
+                                <span class="w-5 h-5 rounded-full bg-sky-200 flex items-center justify-center text-xs">1</span>
+                                <span>Key Generation &amp; Pinning</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Generate RSA-3072 key pairs. Export public SPKI fingerprints and share them out-of-band for trusted pinning.
+                            </p>
+                            <a th:href="@{/keys}" class="text-xs font-semibold text-sky-700 hover:underline">Go to Keys &rarr;</a>
+                        </div>
+
+                        <div class="glass-panel-subtle p-4 rounded-xl border border-white/80">
+                            <div class="flex items-center space-x-2 text-sky-800 font-semibold text-sm mb-1.5">
+                                <span class="w-5 h-5 rounded-full bg-sky-200 flex items-center justify-center text-xs">2</span>
+                                <span>Detached Signing</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Select any document file and sign with your passphrase. Download the detached <code>.dsig.json</code> signature envelope.
+                            </p>
+                            <a th:href="@{/sign}" class="text-xs font-semibold text-sky-700 hover:underline">Go to Sign &rarr;</a>
+                        </div>
+
+                        <div class="glass-panel-subtle p-4 rounded-xl border border-white/80">
+                            <div class="flex items-center space-x-2 text-sky-800 font-semibold text-sm mb-1.5">
+                                <span class="w-5 h-5 rounded-full bg-sky-200 flex items-center justify-center text-xs">3</span>
+                                <span>Authenticity Verification</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Upload received documents with envelopes to verify mathematical integrity and evaluate local trust store status.
+                            </p>
+                            <a th:href="@{/verify}" class="text-xs font-semibold text-sky-700 hover:underline">Go to Verify &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
 
-        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-            <a th:href="@{/sign}" class="btn btn-primary">Sign a Document</a>
-            <a th:href="@{/verify}" class="btn" style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-main);">Verify Document</a>
-        </div>
+        <footer class="max-w-7xl mx-auto px-6 py-4 w-full text-center text-xs text-slate-400">
+            ACNS-DSIG Secure Digital Document Authentication &bull; SHA-256 &bull; RSA-3072 PSS &bull; PBES2 AES-256
+        </footer>
     </div>
 </div>
 </body>

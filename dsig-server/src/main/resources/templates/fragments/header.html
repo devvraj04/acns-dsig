@@ -2,32 +2,59 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head></head>
 <body>
-<nav th:fragment="navbar" class="navbar">
-    <a th:href="@{/dashboard}" class="brand">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <path d="m9 12 2 2 4-4"/>
-        </svg>
-        ACNS-DSIG
-    </a>
-    <ul class="nav-links" sec:authorize="isAuthenticated()">
-        <li><a th:href="@{/dashboard}">Dashboard</a></li>
-        <li><a th:href="@{/keys}">Keys</a></li>
-        <li><a th:href="@{/sign}">Sign</a></li>
-        <li><a th:href="@{/verify}">Verify</a></li>
-        <li><a th:href="@{/trust}">Trust Store</a></li>
-        <li><a th:href="@{/history}">History</a></li>
-        <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/audit}">Audit</a></li>
-        <li>
-            <form th:action="@{/logout}" method="post" style="display:inline;">
-                <button type="submit" class="btn" style="background:transparent; color:var(--text-muted); padding:0; cursor:pointer;">Logout</button>
+<header th:fragment="navbar" class="w-full glass-card sticky top-0 z-30 border-b border-white/80 shadow-xs mb-6">
+    <div class="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3.5">
+            <a th:href="@{/dashboard}" class="flex items-center space-x-3 text-inherit no-underline">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-sm ring-2 ring-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-base font-bold tracking-tight text-slate-900 leading-none">ACNS-DSIG</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-100 text-sky-800 border border-sky-200">v2.4 Core</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-medium">Digital Document Authentication &amp; Hash-Chained Verification</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Authenticated Navigation Tabs & Status -->
+        <div class="flex items-center space-x-4" sec:authorize="isAuthenticated()">
+            <div class="hidden xl:flex items-center space-x-2 text-xs font-mono text-slate-600 bg-white/70 px-3 py-1.5 rounded-lg border border-slate-200/80 shadow-2xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>TLS 1.3 Strict</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-slate-500">RSA-3072 PSS</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-slate-500">SHA-256</span>
+            </div>
+
+            <nav class="flex items-center space-x-1">
+                <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Dashboard</a>
+                <a th:href="@{/keys}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Keys</a>
+                <a th:href="@{/sign}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Sign</a>
+                <a th:href="@{/verify}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Verify</a>
+                <a th:href="@{/trust}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Trust Store</a>
+                <a th:href="@{/history}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">History</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Audit</a>
+            </nav>
+
+            <form th:action="@{/logout}" method="post" class="inline m-0">
+                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-600 bg-white/60 hover:bg-white border border-slate-200 transition-colors shadow-2xs cursor-pointer">
+                    Logout
+                </button>
             </form>
-        </li>
-    </ul>
-    <ul class="nav-links" sec:authorize="!isAuthenticated()">
-        <li><a th:href="@{/login}">Login</a></li>
-        <li><a th:href="@{/register}">Register</a></li>
-    </ul>
-</nav>
+        </div>
+
+        <!-- Unauthenticated Navigation Links -->
+        <div class="flex items-center space-x-2" sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-white/80 border border-transparent hover:border-slate-200 transition-colors">Login</a>
+            <a th:href="@{/register}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 transition-colors shadow-sm rounded-lg">Register</a>
+        </div>
+    </div>
+</header>
 </body>
 </html>

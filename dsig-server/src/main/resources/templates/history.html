@@ -2,124 +2,146 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Verification History')}"></head>
 <body>
-<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+    <div class="aura-layer-3" aria-hidden="true"></div>
+    <div class="aura-layer-4" aria-hidden="true"></div>
 
-<div class="container" style="max-width: 950px;">
-
-    <!-- ── Page Header ───────────────────────────────────────────────────── -->
-    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div style="position: relative; z-index: 1;" class="min-h-screen flex flex-col justify-between">
         <div>
-            <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem;">Verification History &amp; Audit Log</h1>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                Immutable chronological log of document integrity and authenticity verifications performed by your account.
-            </p>
-        </div>
-        <div>
-            <a th:href="@{/verify}" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-                + New Verification
-            </a>
-        </div>
-    </div>
+            <nav th:replace="~{fragments/header :: navbar}"></nav>
 
-    <!-- ── Summary Statistics Grid ──────────────────────────────────────── -->
-    <div class="stats-grid">
-        <div class="stat-metric">
-            <div class="stat-metric-number" th:text="${totalCount ?: 0}">0</div>
-            <div class="stat-metric-label">Total Verifications</div>
-        </div>
-        <div class="stat-metric" style="border-color: rgba(34, 197, 94, 0.3);">
-            <div class="stat-metric-number" style="color: var(--success);" th:text="${validTrustedCount ?: 0}">0</div>
-            <div class="stat-metric-label">Valid &amp; Trusted</div>
-        </div>
-        <div class="stat-metric" style="border-color: rgba(245, 158, 11, 0.3);">
-            <div class="stat-metric-number" style="color: var(--warning);" th:text="${untrustedSignerCount ?: 0}">0</div>
-            <div class="stat-metric-label">Untrusted Signer</div>
-        </div>
-        <div class="stat-metric" style="border-color: rgba(239, 68, 68, 0.3);">
-            <div class="stat-metric-number" style="color: var(--danger);" th:text="${tamperedCount ?: 0}">0</div>
-            <div class="stat-metric-label">Tampered</div>
-        </div>
-        <div class="stat-metric" style="border-color: rgba(239, 68, 68, 0.2);">
-            <div class="stat-metric-number" style="color: var(--danger);" th:text="${otherCount ?: 0}">0</div>
-            <div class="stat-metric-label">Other Failed</div>
-        </div>
-    </div>
-
-    <!-- ── History Records Table Card ───────────────────────────────────── -->
-    <div class="card">
-        <!-- Filter Controls -->
-        <div class="filter-bar">
-            <div class="filter-pills">
-                <button type="button" class="filter-pill active" data-filter="ALL">All</button>
-                <button type="button" class="filter-pill" data-filter="VALID_TRUSTED">Valid &amp; Trusted</button>
-                <button type="button" class="filter-pill" data-filter="VALID_UNTRUSTED_SIGNER">Untrusted Signer</button>
-                <button type="button" class="filter-pill" data-filter="DOCUMENT_TAMPERED">Tampered</button>
-                <button type="button" class="filter-pill" data-filter="OTHER">Other Failed</button>
-            </div>
-            <input type="text"
-                   id="historySearchInput"
-                   class="search-box"
-                   placeholder="Search document or key ID...">
-        </div>
-
-        <table class="data-table" th:if="${records != null and !records.isEmpty()}">
-            <thead>
-                <tr>
-                    <th style="width: 18%;">Verified At (UTC)</th>
-                    <th style="width: 25%;">Document Name</th>
-                    <th style="width: 20%;">Outcome</th>
-                    <th style="width: 12%;">Trust Status</th>
-                    <th>Signer Key Fingerprint</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="r : ${records}"
-                    class="history-row"
-                    th:data-result="${r.resultCode}"
-                    th:data-doc="${r.docName}"
-                    th:data-key="${r.keyId}">
-                    <td style="font-size: 0.8rem; color: var(--text-muted);" th:text="${r.verifiedAt}"></td>
-                    <td style="font-weight: 600;" th:text="${r.docName}"></td>
-                    <td>
-                        <span th:if="${r.resultCode == 'VALID_TRUSTED'}" class="badge badge-success">&#10003; VALID_TRUSTED</span>
-                        <span th:if="${r.resultCode == 'VALID_UNTRUSTED_SIGNER'}" class="badge badge-warning">&#9888; UNTRUSTED_SIGNER</span>
-                        <span th:if="${r.resultCode == 'DOCUMENT_TAMPERED'}" class="badge badge-danger">&#10007; TAMPERED</span>
-                        <span th:if="${r.resultCode != 'VALID_TRUSTED' and r.resultCode != 'VALID_UNTRUSTED_SIGNER' and r.resultCode != 'DOCUMENT_TAMPERED'}"
-                              class="badge badge-danger" th:text="${'&#10007; ' + r.resultCode}"></span>
-                    </td>
-                    <td>
-                        <span th:if="${r.trustStatus == 'TRUSTED'}" style="color: var(--success); font-weight: 500;">TRUSTED</span>
-                        <span th:if="${r.trustStatus == 'UNTRUSTED' or r.trustStatus == 'UNKNOWN'}" style="color: var(--warning); font-weight: 500;" th:text="${r.trustStatus}"></span>
-                        <span th:if="${r.trustStatus == 'REVOKED' or r.trustStatus == 'RETIRED'}" style="color: var(--danger); font-weight: 500;" th:text="${r.trustStatus}"></span>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;">
-                            <span class="digest-box" style="font-size: 0.72rem; flex: 1;" th:text="${r.keyId != null ? (r.keyId.length() > 24 ? r.keyId.substring(0, 24) + '...' : r.keyId) : 'N/A'}"></span>
-                            <button th:if="${r.keyId != null}" type="button" class="copy-btn" th:data-copy="${r.keyId}" title="Copy full key fingerprint">Copy</button>
+            <main class="max-w-5xl mx-auto px-6 py-6 w-full">
+                <!-- Page Header -->
+                <div class="mb-6 flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-sky-800 bg-sky-100/80 px-2.5 py-1 rounded-md border border-sky-200/60 mb-2">
+                            <span>Audit &amp; Logs</span>
+                            <span>&bull;</span>
+                            <span>Verification History</span>
                         </div>
-                    </td>
-                </tr>
-                <tr id="noHistoryMatch" style="display:none;">
-                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
-                        No verification records matched the selected filter or search keyword.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">Verification History &amp; Audit Log</h1>
+                        <p class="text-sm text-slate-600 mt-1">
+                            Immutable chronological log of document integrity and authenticity verifications performed by your account.
+                        </p>
+                    </div>
+                    <div>
+                        <a th:href="@{/verify}" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all flex items-center gap-1.5">
+                            + New Verification
+                        </a>
+                    </div>
+                </div>
 
-        <div th:if="${records == null or records.isEmpty()}" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; color: var(--text-muted);">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            <p style="font-size: 0.95rem; margin-bottom: 0.25rem;">No document verifications recorded yet.</p>
-            <p style="font-size: 0.8rem;">Verifications performed by your account will automatically be logged here with cryptographic details.</p>
-            <div style="margin-top: 1rem;">
-                <a th:href="@{/verify}" class="btn btn-primary" style="font-size: 0.85rem;">Go to Verification</a>
-            </div>
+                <!-- Summary Statistics Grid -->
+                <div class="stats-grid grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+                    <div class="stat-metric glass-card p-4 rounded-xl text-center">
+                        <div class="stat-metric-number text-2xl font-black text-slate-900" th:text="${totalCount ?: 0}">0</div>
+                        <div class="stat-metric-label text-[11px] font-semibold uppercase tracking-wider text-slate-500 mt-1">Total Verifications</div>
+                    </div>
+                    <div class="stat-metric glass-card p-4 rounded-xl text-center border-emerald-300 bg-emerald-50/40">
+                        <div class="stat-metric-number text-2xl font-black text-emerald-700" th:text="${validTrustedCount ?: 0}">0</div>
+                        <div class="stat-metric-label text-[11px] font-semibold uppercase tracking-wider text-emerald-800 mt-1">Valid &amp; Trusted</div>
+                    </div>
+                    <div class="stat-metric glass-card p-4 rounded-xl text-center border-amber-300 bg-amber-50/40">
+                        <div class="stat-metric-number text-2xl font-black text-amber-700" th:text="${untrustedSignerCount ?: 0}">0</div>
+                        <div class="stat-metric-label text-[11px] font-semibold uppercase tracking-wider text-amber-800 mt-1">Untrusted Signer</div>
+                    </div>
+                    <div class="stat-metric glass-card p-4 rounded-xl text-center border-rose-300 bg-rose-50/40">
+                        <div class="stat-metric-number text-2xl font-black text-rose-700" th:text="${tamperedCount ?: 0}">0</div>
+                        <div class="stat-metric-label text-[11px] font-semibold uppercase tracking-wider text-rose-800 mt-1">Tampered</div>
+                    </div>
+                    <div class="stat-metric glass-card p-4 rounded-xl text-center border-slate-300">
+                        <div class="stat-metric-number text-2xl font-black text-slate-700" th:text="${otherCount ?: 0}">0</div>
+                        <div class="stat-metric-label text-[11px] font-semibold uppercase tracking-wider text-slate-500 mt-1">Other Failed</div>
+                    </div>
+                </div>
+
+                <!-- History Records Table Card -->
+                <div class="glass-card rounded-2xl p-6 lg:p-8 mb-6">
+                    <!-- Filter Controls -->
+                    <div class="filter-bar flex justify-between items-center gap-4 mb-5 flex-wrap">
+                        <div class="filter-pills flex gap-2 flex-wrap">
+                            <button type="button" class="filter-pill active px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer" data-filter="ALL">All</button>
+                            <button type="button" class="filter-pill px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer" data-filter="VALID_TRUSTED">Valid &amp; Trusted</button>
+                            <button type="button" class="filter-pill px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer" data-filter="VALID_UNTRUSTED_SIGNER">Untrusted Signer</button>
+                            <button type="button" class="filter-pill px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer" data-filter="DOCUMENT_TAMPERED">Tampered</button>
+                            <button type="button" class="filter-pill px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer" data-filter="OTHER">Other Failed</button>
+                        </div>
+                        <input type="text"
+                               id="historySearchInput"
+                               class="search-box glass-input rounded-xl px-4 py-2 text-xs"
+                               placeholder="Search document or key ID...">
+                    </div>
+
+                    <div class="overflow-x-auto" th:if="${records != null and !records.isEmpty()}">
+                        <table class="data-table w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th class="py-2.5 px-3 text-left w-1/5">Verified At (UTC)</th>
+                                    <th class="py-2.5 px-3 text-left w-1/4">Document Name</th>
+                                    <th class="py-2.5 px-3 text-left w-1/5">Outcome</th>
+                                    <th class="py-2.5 px-3 text-left w-28">Trust Status</th>
+                                    <th class="py-2.5 px-3 text-left">Signer Key Fingerprint</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="r : ${records}"
+                                    class="history-row border-b border-slate-200/60"
+                                    th:data-result="${r.resultCode}"
+                                    th:data-doc="${r.docName}"
+                                    th:data-key="${r.keyId}">
+                                    <td class="py-3 px-3 text-xs text-slate-500 font-mono" th:text="${r.verifiedAt}"></td>
+                                    <td class="py-3 px-3 font-bold text-slate-900" th:text="${r.docName}"></td>
+                                    <td class="py-3 px-3">
+                                        <span th:if="${r.resultCode == 'VALID_TRUSTED'}" class="badge badge-success">&#10003; VALID_TRUSTED</span>
+                                        <span th:if="${r.resultCode == 'VALID_UNTRUSTED_SIGNER'}" class="badge badge-warning">&#9888; UNTRUSTED_SIGNER</span>
+                                        <span th:if="${r.resultCode == 'DOCUMENT_TAMPERED'}" class="badge badge-danger">&#10007; TAMPERED</span>
+                                        <span th:if="${r.resultCode != 'VALID_TRUSTED' and r.resultCode != 'VALID_UNTRUSTED_SIGNER' and r.resultCode != 'DOCUMENT_TAMPERED'}"
+                                              class="badge badge-danger" th:text="${'&#10007; ' + r.resultCode}"></span>
+                                    </td>
+                                    <td class="py-3 px-3 text-xs">
+                                        <span th:if="${r.trustStatus == 'TRUSTED'}" class="text-emerald-700 font-bold">TRUSTED</span>
+                                        <span th:if="${r.trustStatus == 'UNTRUSTED' or r.trustStatus == 'UNKNOWN'}" class="text-amber-700 font-bold" th:text="${r.trustStatus}"></span>
+                                        <span th:if="${r.trustStatus == 'REVOKED' or r.trustStatus == 'RETIRED'}" class="text-rose-700 font-bold" th:text="${r.trustStatus}"></span>
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="digest-box font-mono text-xs bg-slate-900 text-sky-300 p-2 rounded-lg flex-1 overflow-x-auto" th:text="${r.keyId != null ? (r.keyId.length() > 24 ? r.keyId.substring(0, 24) + '...' : r.keyId) : 'N/A'}"></span>
+                                            <button th:if="${r.keyId != null}" type="button" class="copy-btn px-2.5 py-1 rounded bg-white/80 border border-slate-200 text-slate-700 text-xs hover:bg-white" th:data-copy="${r.keyId}" title="Copy full key fingerprint">Copy</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="noHistoryMatch" style="display:none;">
+                                    <td colspan="5" class="text-center text-slate-500 py-6 text-sm">
+                                        No verification records matched the selected filter or search keyword.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:if="${records == null or records.isEmpty()}" class="text-center py-10 text-slate-500">
+                        <svg class="w-10 h-10 mx-auto text-slate-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <p class="text-sm font-semibold text-slate-700 mb-1">No document verifications recorded yet.</p>
+                        <p class="text-xs text-slate-500">Verifications performed by your account will automatically be logged here with cryptographic details.</p>
+                        <div class="mt-4">
+                            <a th:href="@{/verify}" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all inline-flex items-center">
+                                Go to Verification
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-    </div>
 
+        <footer class="max-w-7xl mx-auto px-6 py-4 w-full text-center text-xs text-slate-400">
+            ACNS-DSIG Secure Digital Document Authentication &bull; SHA-256 &bull; RSA-3072 PSS &bull; PBES2 AES-256
+        </footer>
+    </div>
 </div>
 
 <script th:src="@{/js/history.js}"></script>

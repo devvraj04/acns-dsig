@@ -2,33 +2,59 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Register')}"></head>
 <body>
-<nav th:replace="~{fragments/header :: navbar}"></nav>
-<div class="container" style="max-width: 450px;">
-    <div class="card">
-        <h2 class="card-title">Create Account</h2>
-        <div th:replace="~{fragments/flash :: flash}"></div>
+<div class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+    <div class="aura-layer-3" aria-hidden="true"></div>
+    <div class="aura-layer-4" aria-hidden="true"></div>
 
-        <form th:action="@{/register}" method="post">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="role">Role</label>
-                <select id="role" name="role" class="form-control">
-                    <option value="ROLE_VERIFIER">Verifier</option>
-                    <option value="ROLE_SIGNER">Signer</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
-        </form>
-        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
-            Already have an account? <a th:href="@{/login}" style="color: var(--accent-blue);">Sign in</a>
-        </p>
+    <div style="position: relative; z-index: 1;" class="min-h-screen flex flex-col justify-between">
+        <div>
+            <nav th:replace="~{fragments/header :: navbar}"></nav>
+
+            <main class="max-w-md mx-auto px-6 py-10 w-full">
+                <div class="glass-card rounded-2xl p-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-md ring-4 ring-white/60 mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.765z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Create Account</h2>
+                        <p class="text-xs text-slate-500 mt-1">Register new signer or verifier identity</p>
+                    </div>
+
+                    <div th:replace="~{fragments/flash :: flash}"></div>
+
+                    <form th:action="@{/register}" method="post">
+                        <div class="form-group mb-4">
+                            <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Username</label>
+                            <input type="text" id="username" name="username" class="form-control glass-input rounded-xl px-4 py-2.5 text-sm" required autofocus>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Password</label>
+                            <input type="password" id="password" name="password" class="form-control glass-input rounded-xl px-4 py-2.5 text-sm" required>
+                        </div>
+                        <div class="form-group mb-5">
+                            <label for="role" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Role</label>
+                            <select id="role" name="role" class="form-control glass-input rounded-xl px-4 py-2.5 text-sm">
+                                <option value="ROLE_VERIFIER">Verifier</option>
+                                <option value="ROLE_SIGNER">Signer</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all">Register</button>
+                    </form>
+
+                    <p class="mt-5 text-xs text-slate-500 text-center">
+                        Already have an account? <a th:href="@{/login}" class="font-semibold text-sky-700 hover:underline">Sign in</a>
+                    </p>
+                </div>
+            </main>
+        </div>
+
+        <footer class="max-w-7xl mx-auto px-6 py-4 w-full text-center text-xs text-slate-400">
+            ACNS-DSIG Secure Digital Document Authentication &bull; SHA-256 &bull; RSA-3072 PSS &bull; PBES2 AES-256
+        </footer>
     </div>
 </div>
 </body>

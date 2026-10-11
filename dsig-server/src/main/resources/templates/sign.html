@@ -2,248 +2,263 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Sign Document')}"></head>
 <body>
-<nav th:replace="~{fragments/header :: navbar}"></nav>
+<div class="aura-bg">
+    <div class="aura-layer-1" aria-hidden="true"></div>
+    <div class="aura-layer-2" aria-hidden="true"></div>
+    <div class="aura-layer-3" aria-hidden="true"></div>
+    <div class="aura-layer-4" aria-hidden="true"></div>
 
-<div class="container" style="max-width: 700px;">
+    <div style="position: relative; z-index: 1;" class="min-h-screen flex flex-col justify-between">
+        <div>
+            <nav th:replace="~{fragments/header :: navbar}"></nav>
 
-    <!-- ── Page heading ─────────────────────────────────────────────────── -->
-    <div style="margin-bottom: 1.5rem;">
-        <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem;">Sign a Document</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">
-            Select a document, choose an active signing key, enter your passphrase, and generate a
-            detached RSA-PSS signature envelope (<code>.dsig.json</code>).
-        </p>
-    </div>
-
-    <!-- ── No active keys warning ────────────────────────────────────────── -->
-    <div th:if="${keys == null or keys.isEmpty()}"
-         class="alert alert-warning"
-         role="alert">
-        <strong>No active signing keys found.</strong>
-        You need to
-        <a th:href="@{/keys}" style="color: inherit; text-decoration: underline;">generate an RSA key pair</a>
-        before signing documents.
-    </div>
-
-    <!-- ── Flash messages ────────────────────────────────────────────────── -->
-    <div th:replace="~{fragments/flash :: flash}"></div>
-
-    <!-- ── Sign form ─────────────────────────────────────────────────────── -->
-    <div class="card" th:if="${keys != null and !keys.isEmpty()}">
-        <h2 class="card-title">Sign Document</h2>
-
-        <!-- Inline JS validation error (screen reader live region) -->
-        <div id="signError" class="alert alert-danger" role="alert" aria-live="assertive" style="display:none;"></div>
-
-        <form id="signForm"
-              th:action="@{/sign}"
-              method="post"
-              enctype="multipart/form-data"
-              aria-label="Document signing form"
-              novalidate>
-
-            <!-- Document file selector -->
-            <div class="form-group">
-                <label for="document">
-                    Select Document
-                    <span style="color: var(--danger);" aria-hidden="true">*</span>
-                </label>
-                <input type="file"
-                       id="document"
-                       name="document"
-                       class="form-control"
-                       required
-                       aria-required="true"
-                       aria-describedby="documentHint"
-                       accept="*/*">
-                <!-- File info preview — populated by JS -->
-                <div id="fileInfo" class="file-info-box" style="display:none;" role="status" aria-live="polite">
-                    <span id="fileName"></span>
-                    <span id="fileSize" style="color: var(--text-muted); font-size: 0.8rem; margin-left: 0.5rem;"></span>
-                    <span id="fileSizeWarning" class="field-hint" style="color: var(--warning); display:none;"
-                          aria-live="assertive"></span>
+            <main class="max-w-3xl mx-auto px-6 py-6 w-full">
+                <!-- Page heading -->
+                <div class="mb-6">
+                    <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-sky-800 bg-sky-100/80 px-2.5 py-1 rounded-md border border-sky-200/60 mb-2">
+                        <span>Document Signing</span>
+                        <span>&bull;</span>
+                        <span>RSASSA-PSS Detached</span>
+                    </div>
+                    <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">Sign a Document</h1>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Select a document, choose an active signing key, enter your passphrase, and generate a
+                        detached RSA-PSS signature envelope (<code>.dsig.json</code>).
+                    </p>
                 </div>
-                <div id="documentHint" class="field-hint">
-                    All file types are supported. Maximum size: <strong>50 MB</strong>.
-                    The document is signed as raw bytes — its content is not interpreted.
-                </div>
-            </div>
 
-            <!-- Key selector (only ACTIVE keys) -->
-            <div class="form-group">
-                <label for="keyId">
-                    Signing Key
-                    <span style="color: var(--danger);" aria-hidden="true">*</span>
-                </label>
-                <select id="keyId"
-                        name="keyId"
-                        class="form-control"
-                        required
-                        aria-required="true"
-                        aria-describedby="keyIdHint">
-                    <option value="" disabled selected>— Select a signing key —</option>
-                    <option th:each="k : ${keys}"
-                            th:if="${k.status == 'ACTIVE'}"
-                            th:value="${k.keyId}"
-                            th:text="${k.label + ' (' + k.keyId.substring(0, 8) + '...)'}"
-                            th:data-fingerprint="${k.keyId}">
-                    </option>
-                </select>
-                <!-- Selected key fingerprint preview -->
-                <div id="selectedFingerprint" class="field-hint" style="margin-top: 0.5rem; display:none;">
-                    Fingerprint: <span id="fingerprintValue" class="monospace-text"></span>
+                <!-- No active keys warning -->
+                <div th:if="${keys == null or keys.isEmpty()}"
+                     class="alert alert-warning glass-card border border-amber-300 text-amber-900 bg-amber-50/80 p-4 rounded-xl mb-6 text-sm"
+                     role="alert">
+                    <strong>No active signing keys found.</strong>
+                    You need to
+                    <a th:href="@{/keys}" class="text-sky-700 underline font-semibold">generate an RSA key pair</a>
+                    before signing documents.
                 </div>
-                <div id="keyIdHint" class="field-hint">
-                    Only ACTIVE keys are listed. Retired or revoked keys cannot be used for new signatures.
-                </div>
-            </div>
 
-            <!-- Passphrase -->
-            <div class="form-group">
-                <label for="passphrase">
-                    Private Key Passphrase
-                    <span style="color: var(--danger);" aria-hidden="true">*</span>
-                </label>
-                <div class="password-wrapper">
-                    <input type="password"
-                           id="passphrase"
-                           name="passphrase"
-                           class="form-control"
-                           required
-                           aria-required="true"
-                           autocomplete="current-password"
-                           aria-describedby="passphraseHint"
-                           placeholder="Passphrase used when this key was generated">
-                    <button type="button" class="toggle-pwd"
-                            onclick="toggleVisibility('passphrase', this)"
-                            aria-label="Toggle passphrase visibility">&#x1F441;</button>
-                </div>
-                <div id="passphraseHint" class="field-hint">
-                    The passphrase is used only in memory to decrypt your private key for this operation.
-                    It is never stored or logged.
-                </div>
-            </div>
+                <!-- Flash messages -->
+                <div th:replace="~{fragments/flash :: flash}"></div>
 
-            <!-- Download option -->
-            <div class="form-group" style="display:flex; align-items:flex-start; gap: 0.75rem;">
-                <input type="checkbox"
-                       id="download"
-                       name="download"
-                       value="true"
-                       checked
-                       style="margin-top: 0.2rem; flex-shrink: 0;"
-                       aria-describedby="downloadHint">
-                <div>
-                    <label for="download" style="margin-bottom: 0; cursor: pointer;">
-                        Automatically download <code>.dsig.json</code> signature envelope
-                    </label>
-                    <div id="downloadHint" class="field-hint">
-                        The detached signature file that verifiers use alongside the original document.
+                <!-- Sign form -->
+                <div class="glass-card rounded-2xl p-6 lg:p-8 mb-6" th:if="${keys != null and !keys.isEmpty()}">
+                    <h2 class="card-title text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-sky-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                        </svg>
+                        <span>Sign Document</span>
+                    </h2>
+
+                    <!-- Inline JS validation error -->
+                    <div id="signError" class="alert alert-danger glass-card border border-rose-300 text-rose-900 bg-rose-50/80 p-3 rounded-xl mb-4 text-xs font-medium" role="alert" aria-live="assertive" style="display:none;"></div>
+
+                    <form id="signForm"
+                          th:action="@{/sign}"
+                          method="post"
+                          enctype="multipart/form-data"
+                          aria-label="Document signing form"
+                          novalidate>
+
+                        <!-- Document file selector -->
+                        <div class="form-group mb-4">
+                            <label for="document" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                                Select Document
+                                <span class="text-rose-600" aria-hidden="true">*</span>
+                            </label>
+                            <input type="file"
+                                   id="document"
+                                   name="document"
+                                   class="form-control glass-input rounded-xl px-4 py-2.5 text-sm"
+                                   required
+                                   aria-required="true"
+                                   aria-describedby="documentHint"
+                                   accept="*/*">
+                            <!-- File info preview -->
+                            <div id="fileInfo" class="file-info-box mt-2 text-xs" style="display:none;" role="status" aria-live="polite">
+                                <span id="fileName" class="font-semibold text-slate-800"></span>
+                                <span id="fileSize" class="text-slate-500 ml-2 font-mono"></span>
+                                <span id="fileSizeWarning" class="field-hint text-amber-600 font-semibold" style="display:none;" aria-live="assertive"></span>
+                            </div>
+                            <div id="documentHint" class="field-hint text-xs text-slate-500 mt-1">
+                                All file types supported. Max size: <strong>50 MB</strong>. Document bytes are hashed directly.
+                            </div>
+                        </div>
+
+                        <!-- Key selector -->
+                        <div class="form-group mb-4">
+                            <label for="keyId" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                                Signing Key
+                                <span class="text-rose-600" aria-hidden="true">*</span>
+                            </label>
+                            <select id="keyId"
+                                    name="keyId"
+                                    class="form-control glass-input rounded-xl px-4 py-2.5 text-sm"
+                                    required
+                                    aria-required="true"
+                                    aria-describedby="keyIdHint">
+                                <option value="" disabled selected>— Select a signing key —</option>
+                                <option th:each="k : ${keys}"
+                                        th:if="${k.status == 'ACTIVE'}"
+                                        th:value="${k.keyId}"
+                                        th:text="${k.label + ' (' + k.keyId.substring(0, 8) + '...)'}"
+                                        th:data-fingerprint="${k.keyId}">
+                                </option>
+                            </select>
+                            <div id="selectedFingerprint" class="field-hint text-xs text-slate-500 mt-1" style="display:none;">
+                                Fingerprint: <span id="fingerprintValue" class="monospace-text font-mono text-sky-700"></span>
+                            </div>
+                            <div id="keyIdHint" class="field-hint text-xs text-slate-500 mt-1">
+                                Only ACTIVE keys are available for signing.
+                            </div>
+                        </div>
+
+                        <!-- Passphrase -->
+                        <div class="form-group mb-4">
+                            <label for="passphrase" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                                Private Key Passphrase
+                                <span class="text-rose-600" aria-hidden="true">*</span>
+                            </label>
+                            <div class="password-wrapper relative flex items-center">
+                                <input type="password"
+                                       id="passphrase"
+                                       name="passphrase"
+                                       class="form-control glass-input rounded-xl px-4 py-2.5 text-sm w-full pr-10"
+                                       required
+                                       aria-required="true"
+                                       autocomplete="current-password"
+                                       aria-describedby="passphraseHint"
+                                       placeholder="Passphrase used when this key was generated">
+                                <button type="button" class="toggle-pwd absolute right-3 text-slate-400 hover:text-slate-700"
+                                        onclick="toggleVisibility('passphrase', this)"
+                                        aria-label="Toggle passphrase visibility">&#x1F441;</button>
+                            </div>
+                            <div id="passphraseHint" class="field-hint text-xs text-slate-500 mt-1">
+                                Decrypts the private key strictly in memory for this operation. Never stored or logged.
+                            </div>
+                        </div>
+
+                        <!-- Download option -->
+                        <div class="form-group flex items-start gap-3 mb-6">
+                            <input type="checkbox"
+                                   id="download"
+                                   name="download"
+                                   value="true"
+                                   checked
+                                   class="mt-1 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                                   aria-describedby="downloadHint">
+                            <div>
+                                <label for="download" class="text-xs font-semibold text-slate-800 cursor-pointer mb-0">
+                                    Automatically download <code>.dsig.json</code> signature envelope
+                                </label>
+                                <div id="downloadHint" class="field-hint text-xs text-slate-500">
+                                    Detached signature envelope containing cryptographic manifest and signature.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit button -->
+                        <button type="submit"
+                                id="signSubmitBtn"
+                                class="w-full py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm transition-all flex items-center justify-center space-x-2"
+                                aria-describedby="submitHint">
+                            <span id="btnText" class="flex items-center space-x-2">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    <path d="m9 12 2 2 4-4"/>
+                                </svg>
+                                <span>Sign Document</span>
+                            </span>
+                            <span id="btnSpinner" style="display:none;" aria-live="polite">
+                                Signing… please wait
+                            </span>
+                        </button>
+                        <div id="submitHint" class="field-hint text-xs text-slate-500 text-center mt-2">
+                            RSASSA-PSS signing with SHA-256 and 32-byte salt.
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Signing result panel -->
+                <div th:if="${signResult}"
+                     class="glass-card result-panel result-valid rounded-2xl p-6 lg:p-8 mb-6 border border-emerald-300/80 bg-emerald-50/30"
+                     role="region"
+                     aria-label="Signature generation result">
+
+                    <div class="result-header flex items-start gap-4 mb-5">
+                        <div class="result-icon result-icon-success w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg" aria-hidden="true">&#x2713;</div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Signature Generated Successfully</h2>
+                            <p class="text-xs text-slate-600 mt-0.5">
+                                A detached RSA-PSS signature envelope has been created.
+                            </p>
+                        </div>
+                    </div>
+
+                    <dl class="result-details space-y-3">
+                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2 border-b border-slate-200/60">
+                            <dt class="text-xs font-semibold uppercase text-slate-500">Document Name</dt>
+                            <dd class="sm:col-span-2 text-sm font-semibold text-slate-900" th:text="${documentName != null ? documentName : 'Signed Document'}">—</dd>
+                        </div>
+                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2 border-b border-slate-200/60">
+                            <dt class="text-xs font-semibold uppercase text-slate-500">Document Size</dt>
+                            <dd class="sm:col-span-2 text-sm font-mono text-slate-800" th:text="${signResult.documentSize + ' bytes'}">—</dd>
+                        </div>
+                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2 border-b border-slate-200/60">
+                            <dt class="text-xs font-semibold uppercase text-slate-500">SHA-256 Document Digest</dt>
+                            <dd class="sm:col-span-2">
+                                <div class="digest-box font-mono text-xs bg-slate-900 text-sky-300 p-2.5 rounded-lg overflow-x-auto" th:text="${signResult.documentHash}">—</div>
+                                <button type="button"
+                                        th:data-copy="${signResult.documentHash}"
+                                        onclick="copyFromButton(this)"
+                                        class="btn btn-sm mt-2 px-3 py-1 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50"
+                                        aria-label="Copy document hash to clipboard">
+                                    Copy Hash
+                                </button>
+                            </dd>
+                        </div>
+                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2">
+                            <dt class="text-xs font-semibold uppercase text-slate-500">Signing Key Fingerprint</dt>
+                            <dd class="sm:col-span-2">
+                                <div class="digest-box font-mono text-xs bg-slate-900 text-sky-300 p-2.5 rounded-lg overflow-x-auto" th:text="${signResult.keyFingerprint}">—</div>
+                                <button type="button"
+                                        th:data-copy="${signResult.keyFingerprint}"
+                                        onclick="copyFromButton(this)"
+                                        class="btn btn-sm mt-2 px-3 py-1 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50"
+                                        aria-label="Copy key fingerprint to clipboard">
+                                    Copy Fingerprint
+                                </button>
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <div class="mt-5 p-4 rounded-xl bg-emerald-100/60 border border-emerald-300/80 text-xs text-slate-700 leading-relaxed">
+                        <strong class="text-emerald-950 block mb-1">Next steps:</strong>
+                        <ol class="list-decimal pl-5 space-y-1">
+                            <li>If auto-download was enabled, your <code>.dsig.json</code> file was downloaded.</li>
+                            <li>Send both the <strong>original document</strong> and the <code>.dsig.json</code> to the verifier.</li>
+                            <li>Share your key fingerprint via a trusted out-of-band channel so the verifier can pin your identity.</li>
+                        </ol>
                     </div>
                 </div>
-            </div>
 
-            <!-- Submit button with spinner -->
-            <button type="submit"
-                    id="signSubmitBtn"
-                    class="btn btn-primary"
-                    style="width: 100%;"
-                    aria-describedby="submitHint">
-                <span id="btnText">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2" style="margin-right: 0.4rem; vertical-align: middle;" aria-hidden="true">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <path d="m9 12 2 2 4-4"/>
-                    </svg>
-                    Sign Document
-                </span>
-                <span id="btnSpinner" style="display:none;" aria-live="polite">
-                    Signing… please wait
-                </span>
-            </button>
-            <div id="submitHint" class="field-hint" style="text-align:center; margin-top: 0.5rem;">
-                RSA-PSS signing may take a moment for large files.
-            </div>
-
-        </form>
-    </div>
-
-    <!-- ── Signing result panel ───────────────────────────────────────────── -->
-    <div th:if="${signResult}"
-         class="card result-panel result-valid"
-         role="region"
-         aria-label="Signature generation result">
-
-        <div class="result-header">
-            <div class="result-icon result-icon-success" aria-hidden="true">&#x2713;</div>
-            <div>
-                <h2 style="font-size: 1.2rem; font-weight: 700; margin: 0;">Signature Generated Successfully</h2>
-                <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0.25rem 0 0;">
-                    A detached RSA-PSS signature envelope has been created.
-                </p>
-            </div>
+                <!-- How it works panel -->
+                <div class="glass-card rounded-2xl p-5 border border-sky-200/80 bg-sky-50/50 text-slate-700 text-xs leading-relaxed" role="note" aria-label="How signing works">
+                    <strong class="text-sky-900 block mb-1">Detached Signature Architecture:</strong>
+                    <ol class="list-decimal pl-5 space-y-1">
+                        <li>Your document is streamed through <strong>SHA-256</strong> to produce a 256-bit digest.</li>
+                        <li>A manifest containing the hash, size, algorithm, key ID, timestamp and nonce is constructed.</li>
+                        <li>The manifest bytes are signed with your private RSA-3072 key using <strong>RSASSA-PSS</strong>.</li>
+                        <li>A detached <code>.dsig.json</code> envelope containing manifest and signature is produced — leaving the document unmanipulated.</li>
+                    </ol>
+                </div>
+            </main>
         </div>
 
-        <dl class="result-details">
-            <div class="result-row">
-                <dt>Document Name</dt>
-                <dd th:text="${documentName != null ? documentName : 'Signed Document'}">—</dd>
-            </div>
-            <div class="result-row">
-                <dt>Document Size</dt>
-                <dd th:text="${signResult.documentSize + ' bytes'}">—</dd>
-            </div>
-            <div class="result-row">
-                <dt>SHA-256 Document Digest</dt>
-                <dd>
-                    <div class="digest-box" th:text="${signResult.documentHash}">—</div>
-                    <button type="button"
-                            th:data-copy="${signResult.documentHash}"
-                            onclick="copyFromButton(this)"
-                            class="btn btn-sm" style="margin-top: 0.4rem;"
-                            aria-label="Copy document hash to clipboard">
-                        Copy Hash
-                    </button>
-                </dd>
-            </div>
-            <div class="result-row">
-                <dt>Signing Key Fingerprint</dt>
-                <dd>
-                    <div class="digest-box" th:text="${signResult.keyFingerprint}">—</div>
-                    <button type="button"
-                            th:data-copy="${signResult.keyFingerprint}"
-                            onclick="copyFromButton(this)"
-                            class="btn btn-sm" style="margin-top: 0.4rem;"
-                            aria-label="Copy key fingerprint to clipboard">
-                        Copy Fingerprint
-                    </button>
-                </dd>
-            </div>
-        </dl>
-
-        <div style="margin-top: 1.25rem; padding: 1rem; background: rgba(34,197,94,0.07);
-                    border: 1px solid rgba(34,197,94,0.2); border-radius: 8px; font-size: 0.875rem;
-                    color: var(--text-muted);">
-            <strong style="color: var(--text-main);">Next steps:</strong>
-            <ol style="margin: 0.5rem 0 0 1.2rem; line-height: 1.8;">
-                <li>If auto-download was enabled, your <code>.dsig.json</code> file was downloaded.</li>
-                <li>Send both the <strong>original document</strong> and the <code>.dsig.json</code> to the verifier.</li>
-                <li>Share your key fingerprint via a trusted out-of-band channel so the verifier can pin your identity.</li>
-            </ol>
-        </div>
+        <footer class="max-w-7xl mx-auto px-6 py-4 w-full text-center text-xs text-slate-400">
+            ACNS-DSIG Secure Digital Document Authentication &bull; SHA-256 &bull; RSA-3072 PSS &bull; PBES2 AES-256
+        </footer>
     </div>
-
-    <!-- ── How it works panel ─────────────────────────────────────────────── -->
-    <div class="info-panel" role="note" aria-label="How signing works">
-        <strong>How signing works:</strong>
-        <ol style="margin: 0.5rem 0 0 1.2rem; line-height: 1.8; font-size: 0.875rem;">
-            <li>Your document is streamed through <strong>SHA-256</strong> to produce a 256-bit digest.</li>
-            <li>A manifest containing the hash, size, algorithm, key ID, timestamp and nonce is constructed.</li>
-            <li>The manifest bytes are signed with your private RSA-3072 key using <strong>RSASSA-PSS</strong>.</li>
-            <li>A detached <code>.dsig.json</code> envelope containing the manifest and signature is produced — the original document is not modified.</li>
-        </ol>
-    </div>
-
 </div>
 
 <script th:src="@{/js/sign.js}"></script>
