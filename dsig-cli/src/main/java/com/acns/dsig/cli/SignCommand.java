@@ -37,7 +37,7 @@ public class SignCommand implements Callable<Integer> {
     @Option(names = {"-o", "--out"}, description = "Output signature envelope path (defaults to <doc>.dsig.json)")
     private Path outEnvelopePath;
 
-    @Option(names = {"-p", "--passphrase"}, description = "Private key decryption passphrase", interactive = true)
+    @Option(names = {"-p", "--passphrase"}, description = "Private key decryption passphrase", interactive = true, arity = "0..1")
     private char[] passphrase;
 
     @Override

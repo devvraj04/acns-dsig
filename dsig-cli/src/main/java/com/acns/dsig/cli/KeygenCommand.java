@@ -16,7 +16,7 @@ public class KeygenCommand implements Callable<Integer> {
     @Option(names = {"-o", "--out"}, description = "Base path for output key files", defaultValue = "signer_key")
     private String outPath;
 
-    @Option(names = {"-p", "--passphrase"}, description = "Passphrase to encrypt private key (prompted if omitted)", interactive = true)
+    @Option(names = {"-p", "--passphrase"}, description = "Passphrase to encrypt private key (prompted if omitted)", interactive = true, arity = "0..1")
     private char[] passphrase;
 
     @Override
@@ -40,11 +40,13 @@ public class KeygenCommand implements Callable<Integer> {
         Path pubKeyPath = Path.of(outPath + ".pub.pem");
 
         storage.saveEncryptedPrivateKey(result.keyPair().getPrivate(), passphrase, privKeyPath);
+        KeyStorage.zeroize(passphrase);
         Files.writeString(pubKeyPath, KeyStorage.exportPublicKeyToPem(result.keyPair().getPublic()));
 
         System.out.println("Key pair successfully generated!");
         System.out.println("Encrypted Private Key : " + privKeyPath.toAbsolutePath());
         System.out.println("Public Key (PEM)       : " + pubKeyPath.toAbsolutePath());
+        System.out.println("Key ID                : " + result.keyId());
         System.out.println("Fingerprint (SHA-256) : " + result.formattedFingerprint());
 
         return 0;

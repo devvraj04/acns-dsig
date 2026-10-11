@@ -42,6 +42,51 @@ public final class Fingerprint {
         }
     }
 
+    public static final int FINGERPRINT_HEX_LENGTH = 64;
+    public static final int KEY_ID_HEX_LENGTH = 16;
+
+    /**
+     * Extracts a canonical short Key ID (first 16 lowercase hex characters) from a full fingerprint.
+     *
+     * @param hexFingerprint 64-character hex fingerprint
+     * @return 16-character canonical key ID
+     * @throws IllegalArgumentException if hexFingerprint is invalid or too short
+     */
+    public static String toKeyId(String hexFingerprint) {
+        if (hexFingerprint == null) {
+            throw new IllegalArgumentException("Fingerprint cannot be null");
+        }
+        String clean = hexFingerprint.replaceAll("\\s+", "").toLowerCase();
+        if (clean.length() < KEY_ID_HEX_LENGTH) {
+            throw new IllegalArgumentException("Fingerprint too short for Key ID extraction: " + clean.length());
+        }
+        return clean.substring(0, KEY_ID_HEX_LENGTH);
+    }
+
+    /**
+     * Computes the canonical short Key ID directly from a PublicKey.
+     *
+     * @param publicKey the public key
+     * @return 16-character canonical key ID
+     */
+    public static String toKeyId(PublicKey publicKey) {
+        return toKeyId(calculate(publicKey));
+    }
+
+    /**
+     * Checks if a string is a valid 64-character lowercase or uppercase SHA-256 hex fingerprint.
+     *
+     * @param hexFingerprint the fingerprint string to validate
+     * @return true if valid 64-character hex, false otherwise
+     */
+    public static boolean isValidFingerprint(String hexFingerprint) {
+        if (hexFingerprint == null) {
+            return false;
+        }
+        String clean = hexFingerprint.replaceAll("\\s+", "");
+        return clean.length() == FINGERPRINT_HEX_LENGTH && clean.matches("^[0-9a-fA-F]{64}$");
+    }
+
     /**
      * Formats a hex fingerprint into uppercase grouped blocks (e.g., "AB12 34CD 56EF ...").
      */

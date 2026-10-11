@@ -157,3 +157,40 @@ Pure Java library containing all cryptographic, key management, envelope codec, 
    - Authored `docs/HASHING.md`: Comprehensive engineering specification on why hashing is decoupled from RSA, mathematical constraints ($m < n$), performance comparisons, side-channel protections, and NIST test vectors.
    - Authored `docs/benchmark/hashing_benchmark.md`: Detailed performance metrics recording throughput (~350–420 MB/s) and sub-3ms latency for typical 1 MB documents.
 
+---
+
+## [Phase 2: Key Generation, Secure Storage & Fingerprints Implementation] - 2026-10-11
+### Member 4 — Atharv Vedant
+### Work Package: Key Generation, Secure Storage & Fingerprints
+
+1. **Enhanced `KeyStorage.java`**:
+   - Implemented standard PBES2 PKCS#8 encrypted private key serialization with standard ASN.1 OID mapping (`1.2.840.113549.1.5.13`) via `AlgorithmParameters.getInstance("PBES2")`.
+   - Enforced minimum RSA key size ($\ge 3072$ bits) across all public key exports, public key imports, private key saves, and private key loads, rejecting legacy/weak keys with `KeyValidationException`.
+   - Sanitized decryption error handling: masked all cryptographic/format exceptions into uniform `CryptoException("Invalid passphrase or corrupted key file")` to eliminate side-channel error oracles.
+   - Implemented in-memory passphrase zeroization utility (`KeyStorage.zeroize(char[])`) to overwrite secret buffers with null bytes (`'\0'`).
+   - Added robust PEM parsing with support for standard headers, raw Base64 SPKI, and defensive malformed input validation.
+
+2. **Enhanced `KeyService.java`**:
+   - Enforced strict RSA-3072 modulus and standard Fermat-4 ($F_4 = 65537$) exponent checks on generated keys.
+   - Integrated short Key ID derivation (`keyId()`) into `GeneratedKeyPair` container with full backward compatibility.
+
+3. **Enhanced `Fingerprint.java`**:
+   - Implemented canonical 16-character short Key ID extraction (`toKeyId(String)`, `toKeyId(PublicKey)`).
+   - Added `isValidFingerprint(String)` 64-character hexadecimal format validator.
+   - Added defensive bounds checking and null validation.
+
+4. **Enhanced `KeyStatus.java`**:
+   - Implemented cryptographic lifecycle permissions: `canSign()` (restricted strictly to `ACTIVE`), `canVerify()` (permitted for `ACTIVE` and `RETIRED`, rejected for `REVOKED`).
+   - Implemented validated state machine transitions via `validateTransition(KeyStatus)` and `transitionTo(KeyStatus)`, enforcing non-reactivation of retired keys and terminal immutability of revoked keys.
+
+5. **Key Management Unit Test Suite (`dsig-core/src/test/java/com/acns/dsig/core/keys/`)**:
+   - `KeyServiceTest.java`: 3 tests verifying RSA-3072 modulus, $F_4$ exponent, CSPRNG randomness/entropy, and fingerprint/keyId binding.
+   - `FingerprintTest.java`: 7 tests verifying determinism, SPKI hashing KATs, 4-char grouped formatting, 16-char Key ID derivation, hex validation, and defensive null checks.
+   - `KeyStatusTest.java`: 5 tests verifying signing permissions, verification permissions, valid state transitions, and rejection of invalid state transitions.
+   - `KeyStorageTest.java`: 10 tests verifying disk roundtrip encryption/decryption, wrong passphrase generic errors, corrupted ciphertext handling, non-existent file handling, PEM roundtrip, raw Base64 parsing, weak key (< 3072 bits) rejection across export/import/save, and memory zeroization.
+   - **Total Core Suite:** 72 tests run, 0 failures, 0 errors, 100% build success.
+
+6. **Technical Documentation**:
+   - Authored `docs/KEY_MANAGEMENT.md`: Comprehensive engineering specification covering RSA-3072 parameter selection, PBES2 PBKDF2-HMAC-SHA256 encrypted storage, SPKI fingerprint formulas, lifecycle state machines, and threat countermeasures.
+
+

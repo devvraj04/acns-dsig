@@ -31,6 +31,7 @@ public class FingerprintCommand implements Callable<Integer> {
 
         System.out.println("Public Key File : " + publicKeyPath.toAbsolutePath());
         System.out.println("Hex Fingerprint : " + rawFp);
+        System.out.println("Key ID          : " + Fingerprint.toKeyId(rawFp));
         System.out.println("Formatted       : " + formattedFp);
 
         return 0;

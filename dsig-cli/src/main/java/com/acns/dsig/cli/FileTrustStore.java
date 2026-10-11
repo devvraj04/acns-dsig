@@ -34,7 +34,9 @@ public class FileTrustStore implements TrustLookup {
 
     public FileTrustStore(Path storagePath) {
         this.storagePath = storagePath;
-        this.mapper = new ObjectMapper();
+        this.mapper = new ObjectMapper()
+                .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+                .disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         load();
     }
 

@@ -40,6 +40,7 @@ public class KeyManagementService {
         Path keyFilePath = keysDirectory.resolve(generated.fingerprint() + ".pk8");
         KeyStorage storage = new KeyStorage();
         storage.saveEncryptedPrivateKey(generated.keyPair().getPrivate(), passphrase, keyFilePath);
+        KeyStorage.zeroize(passphrase);
 
         String publicPem = KeyStorage.exportPublicKeyToPem(generated.keyPair().getPublic());
 
@@ -49,7 +50,7 @@ public class KeyManagementService {
         entity.setLabel(label);
         entity.setPublicPem(publicPem);
         entity.setKeyFilePath(keyFilePath.toString());
-        entity.setStatus("ACTIVE");
+        entity.setStatus(com.acns.dsig.core.keys.KeyStatus.ACTIVE.name());
 
         return keyPairRepository.save(entity);
     }
@@ -79,7 +80,10 @@ public class KeyManagementService {
             throw new SecurityException("You do not own key " + keyId + " and cannot retire it.");
         }
 
-        key.setStatus("RETIRED");
+        com.acns.dsig.core.keys.KeyStatus current = com.acns.dsig.core.keys.KeyStatus.valueOf(key.getStatus());
+        current.validateTransition(com.acns.dsig.core.keys.KeyStatus.RETIRED);
+
+        key.setStatus(com.acns.dsig.core.keys.KeyStatus.RETIRED.name());
         keyPairRepository.save(key);
     }
 }
