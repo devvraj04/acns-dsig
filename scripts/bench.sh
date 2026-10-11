@@ -3,4 +3,4 @@
 set -e
 
 echo "Executing ACNS-DSIG performance benchmark suite..."
-mvn test -Dtest=CryptoBenchmarkTest || true
+./mvnw test "-Dtest=HashBenchmarkTest,CryptoBenchmarkTest" "-Dsurefire.failIfNoSpecifiedTests=false"

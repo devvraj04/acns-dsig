@@ -151,3 +151,41 @@ java -jar dsig-cli/target/dsig-cli-1.0.0-SNAPSHOT.jar verify document.pdf
 ./mvnw -pl dsig-server spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 Navigate to `http://localhost:8080` in your web browser.
+
+---
+
+## 5. Automated Testing, Benchmarking & Demo Scripts
+
+### 5.1 Run Full Test Suite
+```bash
+# Execute all unit, integration, and fuzz tests across all modules:
+./mvnw test
+# Windows:
+.\mvnw.cmd test
+```
+
+### 5.2 Microbenchmark Suite (`scripts/bench.sh`)
+Profiles streaming SHA-256 hashing throughput, RSA-3072 key generation latency, and RSASSA-PSS signing and verification throughput:
+```bash
+bash scripts/bench.sh
+# Or via Maven directly:
+./mvnw test "-Dtest=HashBenchmarkTest,CryptoBenchmarkTest" "-Dsurefire.failIfNoSpecifiedTests=false"
+```
+
+### 5.3 Parser & Envelope Fuzz Suite (`scripts/fuzz.sh`)
+Tests envelope and manifest deserialization resilience against random bitflips, truncated payloads, corrupt Base64, and boundary conditions:
+```bash
+bash scripts/fuzz.sh
+# Or via Maven directly:
+./mvnw test "-Dtest=EnvelopeFuzzTest" "-Dsurefire.failIfNoSpecifiedTests=false"
+```
+
+### 5.4 End-to-End Demo Script (`scripts/run-demo.*`)
+Executes the full automated workflow (RSA-3072 keygen, fingerprint calculation, trust store pinning, signing, legitimate verification, and tampered document detection):
+```bash
+# On Linux / macOS:
+bash scripts/run-demo.sh
+
+# On Windows (PowerShell):
+powershell -ExecutionPolicy Bypass -File scripts/run-demo.ps1
+```

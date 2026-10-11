@@ -22,8 +22,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Make Maven wrapper executable
+        run: chmod +x mvnw
+
       - name: Verify build and execute test suite
-        run: mvn clean verify --batch-mode
+        run: ./mvnw clean verify --batch-mode
 
       - name: Publish Test Report
         if: always()

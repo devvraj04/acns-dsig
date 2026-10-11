@@ -193,4 +193,33 @@ Pure Java library containing all cryptographic, key management, envelope codec, 
 6. **Technical Documentation**:
    - Authored `docs/KEY_MANAGEMENT.md`: Comprehensive engineering specification covering RSA-3072 parameter selection, PBES2 PBKDF2-HMAC-SHA256 encrypted storage, SPKI fingerprint formulas, lifecycle state machines, and threat countermeasures.
 
+---
 
+## [Phase 3: QA, CI/CD Pipeline Hardening, Test Infrastructure & Demo Automation] - 2026-10-11
+### Member 10 — Simrit Kaur
+### Work Package: QA Automation, CI/CD, Test Infrastructure & Shared Documentation
+
+1. **End-to-End CLI Integration Testing (`DsigCliIntegrationTest.java`)**:
+   - Built complete CLI lifecycle test suite in `dsig-cli` testing `keygen`, `fingerprint`, `trust-add`, `sign`, and `verify`.
+   - Covered key outcomes: `VALID_TRUSTED` (exit 0), `VALID_UNTRUSTED_SIGNER` (exit 2), `DOCUMENT_TAMPERED` (exit 1), and `CORRUPTED_PACKAGE` (exit 1).
+   - Validated command-line stream outputs and exit code semantics.
+
+2. **Parser & Envelope Fuzz Testing Suite (`EnvelopeFuzzTest.java`)**:
+   - Created comprehensive fuzz test suite in `dsig-core/src/test/java/com/acns/dsig/core/fuzz/`.
+   - Evaluated 100 random bitflip mutations across envelope bytes, progressive length truncations, invalid and corrupted Base64 strings, negative/corrupted manifest properties, duplicate keys, and oversized envelope rejection against `FormatLimits`.
+   - Verified that invalid inputs fail cleanly without throwing unexpected unchecked exceptions or crashing the JVM.
+
+3. **Cryptographic Performance Benchmarking Suite (`CryptoBenchmarkTest.java`)**:
+   - Created complementary microbenchmark suite profiling RSA-3072 key generation latency, RSASSA-PSS signing throughput (~229 ops/sec), and full verification pipeline throughput (~619 ops/sec).
+   - Complemented Devraj's streaming SHA-256 microbenchmark without duplicating hashing measurements.
+
+4. **Automation Scripts Hardening (`scripts/`)**:
+   - **`scripts/bench.sh`**: Updated to invoke both `HashBenchmarkTest` and `CryptoBenchmarkTest` using the project Maven wrapper; removed silencing `|| true` so genuine performance regressions or failures return a failing exit code.
+   - **`scripts/fuzz.sh`**: Linked directly to `EnvelopeFuzzTest`; removed `|| true` to preserve failure detection.
+   - **`scripts/run-demo.ps1` & `scripts/run-demo.sh`**: Hardened end-to-end demo flows to use isolated directories (`runtime/demo-temp/`), complete keygen, fingerprint extraction, trust store pinning, signing, legitimate verification, tampering injection, and automated artifact cleanup in `try/finally` blocks and Bash traps.
+
+5. **CI/CD Pipeline Hardening (`.github/workflows/ci.yml`)**:
+   - Enhanced GitHub Actions workflow to set execute permissions on Maven wrapper (`chmod +x mvnw`) and execute `./mvnw clean verify --batch-mode`, ensuring reproducible builds regardless of hosted runner Maven versions.
+
+6. **Documentation & Instructions**:
+   - Updated `README.md` with dedicated section 5 covering test suite commands, microbenchmark execution, fuzz testing, and PowerShell/Bash demo scripts.
