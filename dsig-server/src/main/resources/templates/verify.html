@@ -3,27 +3,125 @@
 <head th:replace="~{fragments/layout :: head('Verify Document')}"></head>
 <body>
 <nav th:replace="~{fragments/header :: navbar}"></nav>
-<div class="container" style="max-width: 650px;">
-    <div class="card">
-        <h2 class="card-title">Verify Digital Document</h2>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
-            Provide the received document along with its corresponding <code>.dsig.json</code> signature envelope to verify integrity and signer authenticity.
-        </p>
-        <div th:replace="~{fragments/flash :: flash}"></div>
 
-        <form id="verifyForm" th:action="@{/verify}" method="post" enctype="multipart/form-data">
+<div class="container" style="max-width: 720px;">
+
+    <!-- ── Page Header ───────────────────────────────────────────────────── -->
+    <div style="margin-bottom: 1.5rem;">
+        <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem;">Verify Document Authenticity &amp; Integrity</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Provide the received document and its detached <code>.dsig.json</code> signature envelope to verify cryptographic integrity, signer identity, and local trust status.
+        </p>
+    </div>
+
+    <!-- ── Flash messages & Client alerts ────────────────────────────────── -->
+    <div th:replace="~{fragments/flash :: flash}"></div>
+    <div id="verifyClientAlert" class="alert alert-danger" style="display:none;" role="alert" aria-live="assertive"></div>
+
+    <div class="card">
+        <h2 class="card-title">Document &amp; Signature Verification</h2>
+
+        <form id="verifyForm" th:action="@{/verify}" method="post" enctype="multipart/form-data" novalidate>
+
+            <!-- ── Document Upload Section ───────────────────────────────────── -->
             <div class="form-group">
-                <label for="document">Received Document</label>
-                <input type="file" id="document" name="document" class="form-control" required>
+                <label for="document" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">
+                    1. Received Document File
+                    <span style="color: var(--danger);" aria-hidden="true">*</span>
+                </label>
+
+                <!-- Document Dropzone -->
+                <div id="docDropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload document file">
+                    <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="12" y2="12"></line>
+                        <line x1="15" y1="15" x2="12" y2="12"></line>
+                    </svg>
+                    <div class="dropzone-label">Drag &amp; drop document here, or <span style="color: var(--accent-blue); text-decoration: underline;">browse</span></div>
+                    <div class="dropzone-sub">All formats supported (PDF, DOCX, TXT, images, archives). Max: 50 MB.</div>
+                </div>
+
+                <!-- Document Selected Preview -->
+                <div id="docSelectedBox" class="file-selected-box" style="display:none;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-blue); flex-shrink: 0;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span id="docSelectedName" class="file-selected-name"></span>
+                        <span id="docSelectedSize" class="file-selected-size"></span>
+                    </div>
+                    <button type="button" id="removeDocBtn" class="btn-remove-file" title="Remove file">&times; Change</button>
+                </div>
+
+                <input type="file" id="document" name="document" style="display:none;" required>
             </div>
-            <div class="form-group">
-                <label for="envelope">Signature Envelope (.dsig.json)</label>
-                <input type="file" id="envelope" name="envelope" class="form-control" required>
+
+            <!-- ── Signature Envelope Section ────────────────────────────────── -->
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="envelope" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">
+                    2. Signature Envelope (<code>.dsig.json</code>)
+                    <span style="color: var(--danger);" aria-hidden="true">*</span>
+                </label>
+
+                <!-- Envelope Dropzone -->
+                <div id="envDropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload signature envelope file">
+                    <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <div class="dropzone-label">Drag &amp; drop <code>.dsig.json</code> envelope here, or <span style="color: var(--accent-blue); text-decoration: underline;">browse</span></div>
+                    <div class="dropzone-sub">Detached signature envelope containing manifest and RSASSA-PSS signature. Max: 512 KB.</div>
+                </div>
+
+                <!-- Envelope Selected Preview -->
+                <div id="envSelectedBox" class="file-selected-box" style="display:none;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-blue); flex-shrink: 0;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span id="envSelectedName" class="file-selected-name"></span>
+                        <span id="envSelectedSize" class="file-selected-size"></span>
+                    </div>
+                    <button type="button" id="removeEnvBtn" class="btn-remove-file" title="Remove envelope">&times; Change</button>
+                </div>
+
+                <input type="file" id="envelope" name="envelope" accept=".json" style="display:none;" required>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Verify Authenticity &amp; Integrity</button>
+
+            <!-- ── Verification Submit Action ───────────────────────────────── -->
+            <button type="submit" id="verifySubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1.75rem; padding: 0.85rem; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+                Verify Authenticity &amp; Integrity
+            </button>
         </form>
     </div>
+
+    <!-- ── Verification Principles Note ─────────────────────────────────── -->
+    <div class="info-panel">
+        <h4 style="margin-bottom: 0.5rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            How ACNS-DSIG Verification Works
+        </h4>
+        <ul style="padding-left: 1.25rem; line-height: 1.6; color: var(--text-muted); font-size: 0.85rem;">
+            <li><strong>Origin Authentication:</strong> The RSASSA-PSS (SHA-256 / MGF1-SHA256, 32-byte salt) signature is verified against the canonical signed manifest bytes using the signer's public key.</li>
+            <li><strong>Document Integrity:</strong> The received document's raw bytes are streamed through SHA-256 to recompute its cryptographic digest and compared with the signed manifest digest.</li>
+            <li><strong>Signer Trust Evaluation:</strong> The signer's SPKI public key fingerprint is checked against your pinned Trust Store. Green status is strictly reserved for <code>VALID_TRUSTED</code>.</li>
+        </ul>
+    </div>
+
 </div>
+
 <script th:src="@{/js/verify.js}"></script>
 </body>
 </html>
