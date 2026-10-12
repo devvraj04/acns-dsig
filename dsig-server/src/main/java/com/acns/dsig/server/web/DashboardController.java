@@ -42,6 +42,7 @@ public class DashboardController {
                 model.addAttribute("historyCount", historyService.getHistoryForUser(user.getId()).size());
             }
         }
+        model.addAttribute("engineInfo", new com.acns.dsig.core.crypto.SignatureService().describeEngine());
         return "dashboard";
     }
 }

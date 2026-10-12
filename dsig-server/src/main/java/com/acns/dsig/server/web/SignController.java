@@ -51,6 +51,7 @@ public class SignController {
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
         List<KeyPairEntity> keys = keyManagementService.getKeysForUser(user.getId());
         model.addAttribute("keys", keys);
+        model.addAttribute("engineInfo", new com.acns.dsig.core.crypto.SignatureService().describeEngine());
         return "sign";
     }
 

@@ -217,7 +217,7 @@
                                 </button>
                             </dd>
                         </div>
-                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2">
+                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2 border-b border-slate-200/60">
                             <dt class="text-xs font-semibold uppercase text-slate-500">Signing Key Fingerprint</dt>
                             <dd class="sm:col-span-2">
                                 <div class="digest-box font-mono text-xs bg-slate-900 text-sky-300 p-2.5 rounded-lg overflow-x-auto" th:text="${signResult.keyFingerprint}">—</div>
@@ -227,6 +227,35 @@
                                         class="btn btn-sm mt-2 px-3 py-1 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50"
                                         aria-label="Copy key fingerprint to clipboard">
                                     Copy Fingerprint
+                                </button>
+                            </dd>
+                        </div>
+                        <!-- RSA-PSS Signature Engine Details -->
+                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2 border-b border-slate-200/60">
+                            <dt class="text-xs font-semibold uppercase text-slate-500">Signature Scheme</dt>
+                            <dd class="sm:col-span-2 flex flex-wrap items-center gap-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-sky-100 text-sky-800 border border-sky-200">
+                                    RSASSA-PSS (RFC 8017)
+                                </span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                    MGF1-SHA256 &bull; Salt: 32 bytes
+                                </span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                    Domain Label: <code>ACNS-DSIG-v1\0</code>
+                                </span>
+                            </dd>
+                        </div>
+                        <div class="result-row grid grid-cols-1 sm:grid-cols-3 gap-2 py-2" th:if="${signResult.envelope != null}">
+                            <dt class="text-xs font-semibold uppercase text-slate-500">RSA-PSS Signature (384 B)</dt>
+                            <dd class="sm:col-span-2">
+                                <div class="digest-box font-mono text-[11px] bg-slate-900 text-emerald-300 p-2.5 rounded-lg overflow-x-auto break-all max-h-24"
+                                     th:text="${signResult.envelope.signature}">—</div>
+                                <button type="button"
+                                        th:data-copy="${signResult.envelope.signature}"
+                                        onclick="copyFromButton(this)"
+                                        class="btn btn-sm mt-2 px-3 py-1 rounded-md text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50"
+                                        aria-label="Copy raw signature to clipboard">
+                                    Copy Raw Signature
                                 </button>
                             </dd>
                         </div>

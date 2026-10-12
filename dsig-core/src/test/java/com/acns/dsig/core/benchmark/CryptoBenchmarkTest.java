@@ -35,6 +35,7 @@ public class CryptoBenchmarkTest {
     private static KeyService keyService;
     private static SigningService signingService;
     private static VerificationService verificationService;
+    private static SignatureService signatureService;
     private static KeyService.GeneratedKeyPair keyPair;
     private static byte[] payloadBytes;
     private static String signedEnvelopeJson;
@@ -44,7 +45,7 @@ public class CryptoBenchmarkTest {
     static void setUp() throws Exception {
         keyService = new KeyService();
         HashService hashService = new HashService();
-        SignatureService signatureService = new SignatureService();
+        signatureService = new SignatureService();
         EnvelopeCodec envelopeCodec = new EnvelopeCodec();
 
         signingService = new SigningService(hashService, signatureService, envelopeCodec);
@@ -161,5 +162,40 @@ public class CryptoBenchmarkTest {
 
         System.out.printf("[BENCHMARK - RSA-PSS Verify] %d operations in %.2f ms | Avg: %.2f ms/verify | Throughput: %.2f ops/sec%n",
                 iterations, totalMs, avgMs, opsPerSec);
+    }
+
+    @Test
+    @DisplayName("Benchmark Pure RSASSA-PSS Engine Sign & Verify Latency")
+    void benchmarkPureRsaPssEngine() {
+        byte[] manifestPayload = "{\"test\":\"benchmark-manifest-payload\"}".getBytes(StandardCharsets.UTF_8);
+
+        // Warmup
+        for (int i = 0; i < 10; i++) {
+            byte[] sig = signatureService.signManifest(keyPair.keyPair().getPrivate(), manifestPayload);
+            signatureService.verifyManifest(keyPair.keyPair().getPublic(), manifestPayload, sig);
+        }
+
+        int iterations = 100;
+        long startSign = System.nanoTime();
+        byte[][] signatures = new byte[iterations][];
+        for (int i = 0; i < iterations; i++) {
+            signatures[i] = signatureService.signManifest(keyPair.keyPair().getPrivate(), manifestPayload);
+        }
+        long signDurationNs = System.nanoTime() - startSign;
+
+        long startVerify = System.nanoTime();
+        for (int i = 0; i < iterations; i++) {
+            boolean ok = signatureService.verifyManifest(keyPair.keyPair().getPublic(), manifestPayload, signatures[i]);
+            org.junit.jupiter.api.Assertions.assertTrue(ok);
+        }
+        long verifyDurationNs = System.nanoTime() - startVerify;
+
+        double signAvgMs = (signDurationNs / 1_000_000.0) / iterations;
+        double signOpsSec = iterations / (signDurationNs / 1_000_000_000.0);
+        double verifyAvgMs = (verifyDurationNs / 1_000_000.0) / iterations;
+        double verifyOpsSec = iterations / (verifyDurationNs / 1_000_000_000.0);
+
+        System.out.printf("[BENCHMARK - Pure RSA-PSS Engine] Sign: %.2f ms/op (%.2f ops/sec) | Verify: %.2f ms/op (%.2f ops/sec)%n",
+                signAvgMs, signOpsSec, verifyAvgMs, verifyOpsSec);
     }
 }

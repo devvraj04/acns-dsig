@@ -195,6 +195,62 @@ Pure Java library containing all cryptographic, key management, envelope codec, 
 
 ---
 
+## [Phase 2: RSA-PSS Digital Signature Engine Implementation & Live Web Integration] - 2026-10-12
+### Member 3 — Tanmay Vishwakarma
+### Work Package: RSA-PSS Digital Signature Engine
+
+1. **Enhanced `SignatureService.java`**:
+   - Implemented standard Java Cryptography Architecture (JCA) RSA-PSS primitives using `Signature.getInstance("RSASSA-PSS")` configured with `PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1)`.
+   - **Validation Primitives**:
+     - `validatePrivateKey(PrivateKey)`: Verifies non-null instance of `RSAPrivateKey` with bit length $\ge 3072$, throwing `KeyValidationException` for weak or non-RSA keys.
+     - `validatePublicKey(PublicKey)`: Enforces non-null instance of `RSAPublicKey` with bit length $\ge 3072$ and Fermat-4 public exponent $e \ge 65537$, rejecting weak/legacy keys.
+     - `validateAlgorithm(String)`: Strictly enforces exact algorithm identifier `RSASSA-PSS-SHA256-MGF1SHA256-S32`, rejecting invalid, empty, or incompatible algorithms with `CryptoException`.
+   - **Domain Separation Prefixing**:
+     - Implemented `signManifest(PrivateKey, byte[])` and `verifyManifest(PublicKey, byte[], byte[])` prepending the authoritative 12-byte UTF-8 domain separation label (`CryptoConfig.DOMAIN_SEPARATION_LABEL` = `ACNS-DSIG-v1\0`) to raw manifest bytes prior to signing and verification, preventing cross-protocol signature substitution.
+     - Retained raw byte primitives `signData(PrivateKey, byte[])` and `verifyData(PublicKey, byte[], byte[])` with validation checks.
+   - **Dynamic Engine Introspection**:
+     - Added `describeEngine()` returning an immutable `SignatureEngineInfo` record containing key size, hash algorithm, mask generation function, salt length, trailer field, domain separation label, and public exponent for dynamic UI and REST auditing without hardcoded assumptions.
+
+2. **Comprehensive Unit & Security Test Suite (`SignatureServiceTest.java`)**:
+   - Created 23 exhaustive unit and security tests organized in 5 nested classes:
+     - `HappyPathTests`: Signs and verifies manifests and raw data; asserts exact 384-byte signature output; validates RSASSA-PSS probabilistic signature non-determinism (same message generates different valid signatures due to random salt).
+     - `NegativeIntegrityTests`: Verifies failure on mismatched public key; 1-bit manifest tamper detection; single-bit signature flipping; truncated signature rejection; garbage bytes rejection; missing domain label prefix rejection; null and empty argument defensive handling.
+     - `KeyEnforcementTests`: Accepts valid 3072-bit keys; strictly rejects 2048-bit keys, 1024-bit keys, non-RSA elliptic curve keys (secp256r1), and null keys with `KeyValidationException`.
+     - `DomainSeparationTests`: Verifies signatures generated under different domain labels or raw data cannot verify against manifest domain separation, preventing cross-protocol ambiguity.
+     - `AlgorithmValidationTests`: Validates rejection of non-matching algorithms and acceptance of canonical algorithm identifier.
+
+3. **Cryptographic Microbenchmarking Suite (`CryptoBenchmarkTest.java`)**:
+   - Implemented `benchmarkPureRsaPssEngine()` profiling pure RSA-PSS sign and verify latency and throughput (ops/sec) across 25 measured iterations with warmups, complementing overall pipeline benchmarks.
+
+4. **Web Server REST & Interactive UI Demonstration**:
+   - **REST API (`ApiController.java`)**:
+     - Added `GET /api/signature-engine` exposing dynamic `SignatureEngineInfo` specification and runtime parameters.
+     - Added `GET /api/signature-engine/benchmark` executing a live, dynamic in-memory 25-iteration benchmark returning actual sign/verify latency and ops/sec.
+   - **Spring Security Configuration (`SecurityConfig.java`)**:
+     - Whitelisted `/api/signature-engine/**` in public endpoints.
+   - **Dashboard UI (`DashboardController.java` & `dashboard.html`)**:
+     - Injected dynamic `engineInfo` into Dashboard model.
+     - Added dedicated **RSA-PSS Digital Signature Engine** showcase card featuring dynamic spec badges (3072-bit modulus, PSS/SHA-256/MGF1-SHA256, 32-byte salt, domain separation label) and an interactive **Run Live Engine Benchmark** widget calculating and rendering live ops/sec and latency directly in the browser.
+   - **Sign UI (`SignController.java` & `sign.html`)**:
+     - Injected dynamic `engineInfo` into Sign model.
+     - Added digital signature specification details (384-byte output, domain separation, probabilistic salt) and an interactive raw Base64 signature inspect & copy box upon document signing.
+
+5. **Web Testing, Header Navbar Alignment & Database Hardening**:
+   - **`dsig-server/pom.xml`**: Added `thymeleaf-extras-springsecurity6` dependency, resolving unparsed `sec:authorize` attributes in Thymeleaf templates.
+   - **`fragments/header.html`**: Redesigned navigation bar for clean horizontal alignment and responsiveness:
+     - Grouped authenticated nav tabs (`Dashboard`, `Keys`, `Sign`, `Verify`, `Trust Store`, `History`) into a sleek glass container.
+     - Enforced `sec:authorize="hasRole('ADMIN')"` so the `Audit` tab is strictly rendered for administrators.
+     - Added authenticated user identity chip with status indicator.
+     - Added styled logout button with action icon.
+     - Completely eliminated extra `Login` and `Register` buttons leaking into authenticated views.
+     - Added responsive sub-bar for viewports below medium (`< md`).
+   - **`DashboardControllerTest.java`**: Added integration tests asserting that `/dashboard` renders properly, that `Login` and `Register` are hidden for authenticated sessions, and that `Audit` is only visible to admin roles.
+   - **`ApiControllerTest.java`**: Added integration tests validating `/api/health`, `/api/signature-engine`, and `/api/signature-engine/benchmark` endpoints.
+   - **`application.yml`**: Added `AUTO_SERVER=TRUE` to H2 file database connection string, preventing multi-process lock contention between the live application server and Maven test runners.
+   - **`ApiController.java`**: Refactored JSON benchmark response map to `LinkedHashMap`, resolving `Map.of()` overload limits.
+
+---
+
 ## [Phase 3: QA, CI/CD Pipeline Hardening, Test Infrastructure & Demo Automation] - 2026-10-11
 ### Member 10 — Simrit Kaur
 ### Work Package: QA Automation, CI/CD, Test Infrastructure & Shared Documentation

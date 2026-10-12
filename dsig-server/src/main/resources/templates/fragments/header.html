@@ -3,10 +3,11 @@
 <head></head>
 <body>
 <header th:fragment="navbar" class="w-full glass-card sticky top-0 z-30 border-b border-white/80 shadow-xs mb-6">
-    <div class="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
-        <div class="flex items-center space-x-3.5">
-            <a th:href="@{/dashboard}" class="flex items-center space-x-3 text-inherit no-underline">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-sm ring-2 ring-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <!-- Brand / Logo -->
+        <div class="flex items-center space-x-3 shrink-0">
+            <a th:href="@{/dashboard}" class="flex items-center space-x-3 text-inherit no-underline group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-sm ring-2 ring-white/80 group-hover:scale-105 transition-transform">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                     </svg>
@@ -14,46 +15,66 @@
                 <div>
                     <div class="flex items-center space-x-2">
                         <span class="text-base font-bold tracking-tight text-slate-900 leading-none">ACNS-DSIG</span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-100 text-sky-800 border border-sky-200">v2.4 Core</span>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-sky-100 text-sky-800 border border-sky-200">v2.4</span>
                     </div>
-                    <p class="text-[11px] text-slate-500 font-medium">Digital Document Authentication &amp; Hash-Chained Verification</p>
+                    <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Digital Document Authentication</p>
                 </div>
             </a>
         </div>
 
-        <!-- Authenticated Navigation Tabs & Status -->
-        <div class="flex items-center space-x-4" sec:authorize="isAuthenticated()">
-            <div class="hidden xl:flex items-center space-x-2 text-xs font-mono text-slate-600 bg-white/70 px-3 py-1.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>TLS 1.3 Strict</span>
-                <span class="text-slate-300">|</span>
-                <span class="text-slate-500">RSA-3072 PSS</span>
-                <span class="text-slate-300">|</span>
-                <span class="text-slate-500">SHA-256</span>
-            </div>
-
-            <nav class="flex items-center space-x-1">
-                <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Dashboard</a>
-                <a th:href="@{/keys}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Keys</a>
-                <a th:href="@{/sign}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Sign</a>
-                <a th:href="@{/verify}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Verify</a>
-                <a th:href="@{/trust}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Trust Store</a>
-                <a th:href="@{/history}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">History</a>
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white/80 transition-colors">Audit</a>
+        <!-- Authenticated Navigation Tabs & User Controls -->
+        <div class="flex items-center gap-3"
+             th:if="${isAuthenticated != null ? isAuthenticated : (#authentication != null and #authentication.name != 'anonymousUser')}"
+             sec:authorize="isAuthenticated()">
+            <!-- Main Navigation Links -->
+            <nav class="hidden md:flex items-center gap-1 bg-slate-100/70 p-1 rounded-xl border border-slate-200/60 shadow-2xs">
+                <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Dashboard</a>
+                <a th:href="@{/keys}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Keys</a>
+                <a th:href="@{/sign}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Sign</a>
+                <a th:href="@{/verify}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Verify</a>
+                <a th:href="@{/trust}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Trust Store</a>
+                <a th:href="@{/history}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">History</a>
+                <a th:if="${isAdmin != null ? isAdmin : false}" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-purple-700 hover:text-purple-900 hover:bg-white transition-colors">Audit</a>
             </nav>
 
-            <form th:action="@{/logout}" method="post" class="inline m-0">
-                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-600 bg-white/60 hover:bg-white border border-slate-200 transition-colors shadow-2xs cursor-pointer">
-                    Logout
-                </button>
-            </form>
+            <!-- User Info Chip & Logout Button -->
+            <div class="flex items-center gap-2">
+                <div class="hidden sm:flex items-center gap-1.5 bg-white/70 px-2.5 py-1 rounded-lg border border-slate-200/80 text-xs font-medium text-slate-700 shadow-2xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span th:text="${currentUsername != null ? currentUsername : 'User'}" sec:authentication="name" class="font-semibold text-slate-800">User</span>
+                </div>
+
+                <form th:action="@{/logout}" method="post" class="inline m-0">
+                    <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50/80 border border-slate-200/80 hover:border-rose-200 transition-colors shadow-2xs cursor-pointer flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- Unauthenticated Navigation Links -->
-        <div class="flex items-center space-x-2" sec:authorize="!isAuthenticated()">
-            <a th:href="@{/login}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-white/80 border border-transparent hover:border-slate-200 transition-colors">Login</a>
+        <div class="flex items-center space-x-2"
+             th:if="${isAuthenticated != null ? !isAuthenticated : (#authentication == null or #authentication.name == 'anonymousUser')}"
+             sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-white/80 border border-slate-200/60 hover:border-slate-300 transition-colors">Login</a>
             <a th:href="@{/register}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 transition-colors shadow-sm rounded-lg">Register</a>
         </div>
+    </div>
+
+    <!-- Mobile Navigation Sub-Bar (for screens under md) -->
+    <div class="md:hidden border-t border-slate-200/50 px-4 py-2 bg-white/40 overflow-x-auto flex items-center gap-1 text-xs font-semibold text-slate-700"
+         th:if="${isAuthenticated != null ? isAuthenticated : (#authentication != null and #authentication.name != 'anonymousUser')}"
+         sec:authorize="isAuthenticated()">
+        <a th:href="@{/dashboard}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Dashboard</a>
+        <a th:href="@{/keys}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Keys</a>
+        <a th:href="@{/sign}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Sign</a>
+        <a th:href="@{/verify}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Verify</a>
+        <a th:href="@{/trust}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Trust Store</a>
+        <a th:href="@{/history}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">History</a>
+        <a th:if="${isAdmin != null ? isAdmin : false}" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap text-purple-700">Audit</a>
     </div>
 </header>
 </body>

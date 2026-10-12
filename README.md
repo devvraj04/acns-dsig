@@ -60,6 +60,8 @@ acns-dsig/
 │
 ├── docs/                                     (Specifications, Threat Model, Changes, and Architecture)
 │   ├── changes.md                            (Exhaustive log of codebase modifications)
+│   ├── SIGNATURE_ENGINE.md                   (RSA-PSS engine, domain separation, JCA validation)
+│   ├── HASHING.md                            (Streaming SHA-256 and constant-time comparison)
 │   ├── KEY_MANAGEMENT.md                     (Key lifecycle, PBES2 derivation, and zeroization)
 │   ├── FORMAT.md                             (Detached envelope and canonical manifest schema)
 │   ├── THREAT_MODEL.md                       (STRIDE threat matrix and countermeasure analysis)
@@ -83,7 +85,7 @@ acns-dsig/
 |---|---|---|
 | **Deven Thakkar** | Verification Engine & Result Model | `VerificationService`, `VerificationResult`, `ResultCode`, `TrustPolicy`, `DsigException` |
 | **Devraj Sundrani** | Document Processing & SHA-256 Hashing | `HashService`, `ConstantTime`, `DsigCli`, CLI commands |
-| **Tanmay Vishwakarma** | RSA-PSS Signature Engine | `SignatureService`, `CryptoConfig`, `SigningService` |
+| **Tanmay Vishwakarma** | RSA-PSS Signature Engine | `SignatureService`, `CryptoConfig`, `SignatureEngineInfo`, `SignatureServiceTest`, `docs/SIGNATURE_ENGINE.md` |
 | **Atharv Vedant** | Key Generation & Secure Key Storage | `KeyService`, `KeyStorage` (PBES2 AES-256), `Fingerprint`, `KeyStatus` |
 | **Parth Zala** | Manifest, Envelope & Strict Codec | `Manifest`, `Envelope`, `EnvelopeCodec`, `FormatLimits`, `FORMAT.md` |
 | **Nityanand Upadhyay** | Database, Users & Audit Chain | JPA Entities, Repositories, `AuditChainService`, `UserService`, `HistoryService` |
@@ -248,9 +250,9 @@ java -jar dsig-server/target/dsig-server-1.0.0-SNAPSHOT.jar
    - Select role **Signer** to generate keys and sign documents.
    - Select role **Verifier** to inspect incoming documents and pin signers.
 3. Log in to access the multi-step navigation tabs:
-   - **Dashboard:** Workspace metrics, quick stats, and workflow guides.
+   - **Dashboard:** Workspace metrics, quick stats, workflow guides, and live **RSA-PSS Digital Signature Engine** showcase card featuring dynamic specification badges and a one-click in-browser benchmark runner (`/api/signature-engine/benchmark`).
    - **Keys (`/keys`):** Generate RSA-3072 key pairs, test passphrase strength, export public PEM, copy fingerprints, and retire keys.
-   - **Sign (`/sign`):** Upload any document (&le; 50 MB), enter your passphrase, sign detached envelope, and download `.dsig.json`.
+   - **Sign (`/sign`):** Upload any document (&le; 50 MB), enter your passphrase, inspect dynamic RSA-PSS engine specs, sign detached envelope, inspect/copy the raw 384-byte Base64 signature, and download `.dsig.json`.
    - **Verify (`/verify`):** Drag-and-drop document and `.dsig.json` envelope to execute multi-stage verification.
    - **Outcome (`/verify` result):** View color-coded outcome badges, signer identity, side-by-side SHA-256 digest comparison, and quick-pin CTA.
    - **Trust Store (`/trust`):** Pin 64-hex SHA-256 SPKI fingerprints with notes, search pinned signers, or revoke trust.
@@ -290,24 +292,47 @@ Navigate to **`https://localhost:8443`** (accept the self-signed certificate war
 ### 7.1 Running All Unit & Integration Tests (140+ Tests)
 ```bash
 # Run tests across all 3 modules (dsig-core, dsig-cli, dsig-server):
-.\mvnw.cmd test
+./mvnw test        # Linux / macOS
+.\mvnw.cmd test    # Windows
 
 # Run tests only for a specific module:
-.\mvnw.cmd test -pl dsig-core
-.\mvnw.cmd test -pl dsig-cli
-.\mvnw.cmd test -pl dsig-server
+./mvnw test -pl dsig-core
+./mvnw test -pl dsig-cli
+./mvnw test -pl dsig-server
+
+# Run Member 3's RSA-PSS Digital Signature Engine test suite (23 tests):
+./mvnw test -Dtest=SignatureServiceTest -pl dsig-core
 ```
 
-### 7.2 Microbenchmark Suite (Performance Profiling)
-Measures SHA-256 streaming hashing throughput, RSA-3072 key generation time, and RSASSA-PSS signing/verifying latency:
+`SignatureServiceTest` systematically validates:
+- **Happy Path:** Manifest signing & verification, raw data signing, 384-byte signature length, and PSS probabilistic randomness.
+- **Negative & Tampering Tests:** Public key mismatch, 1-bit manifest modifications, single-bit signature corruption, truncated signatures, garbage bytes, and missing domain label prefixes.
+- **Defensive Key Enforcement:** Strict acceptance of $\ge 3072$-bit RSA keys and rejection of 1024-bit, 2048-bit, and non-RSA (EC secp256r1) keys.
+- **Domain Separation:** Prevents cross-protocol replay between manifest and raw signatures.
+- **Algorithm Enforcement:** Rejects non-canonical algorithms.
+
+### 7.2 Microbenchmark Suite & Live Web Benchmarking
+Measures SHA-256 streaming hashing throughput, RSA-3072 key generation time, and pure RSASSA-PSS signing/verifying latency:
 
 ```bash
+# Run pure RSA-PSS microbenchmarks from CLI:
+./mvnw test -Dtest=CryptoBenchmarkTest#benchmarkPureRsaPssEngine -pl dsig-core
+
+# Run microbenchmarks across all suites:
 # On Windows:
 powershell -ExecutionPolicy Bypass -File scripts/bench.ps1
 
 # On Linux / macOS:
 bash scripts/bench.sh
 ```
+
+**Live Web Benchmark Endpoint:**  
+When `dsig-server` is running, you can also execute a live, in-memory 25-iteration RSA-PSS benchmark directly from the browser dashboard or via HTTP:
+```bash
+curl http://localhost:8080/api/signature-engine/benchmark
+curl http://localhost:8080/api/signature-engine
+```
+
 
 ### 7.3 Envelope & Parser Fuzz Testing
 Evaluates parser resilience against randomized bitflips, truncated payloads, corrupt Base64, and boundary violations:
