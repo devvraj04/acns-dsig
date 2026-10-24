@@ -7,7 +7,6 @@ This is the consolidated implementation plan created by combining the original p
 The original project flow is retained: RSA key generation → document hashing → digital signing → transmission → receiver-side verification → hash comparison → result/reporting. The cryptographic and security details are strengthened where the original proposal used simplified textbook wording or left important design decisions unspecified.
 
 ---
-
 # 1. Final Scope
 
 ## 1.1 Core problem
