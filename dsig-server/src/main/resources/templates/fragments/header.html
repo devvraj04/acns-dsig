@@ -2,22 +2,28 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head></head>
 <body>
-<header th:fragment="navbar" class="w-full glass-card sticky top-0 z-30 border-b border-white/80 shadow-xs mb-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+<header th:fragment="navbar" class="w-full sticky top-0 z-40 bg-white/75 backdrop-blur-xl border-b border-white/80 shadow-[0_4px_24px_-4px_rgba(15,23,42,0.06)] transition-all mb-6">
+    <!-- Top Decorative Gradient Glow Hairline -->
+    <div class="h-[2px] w-full bg-gradient-to-r from-sky-500 via-indigo-500 to-cyan-400"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
         <!-- Brand / Logo -->
         <div class="flex items-center space-x-3 shrink-0">
             <a th:href="@{/dashboard}" class="flex items-center space-x-3 text-inherit no-underline group">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-sm ring-2 ring-white/80 group-hover:scale-105 transition-transform">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 via-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-sky-500/20 ring-1 ring-white/80 group-hover:shadow-lg group-hover:shadow-sky-500/30 group-hover:scale-105 transition-all duration-200">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                     </svg>
                 </div>
                 <div>
                     <div class="flex items-center space-x-2">
-                        <span class="text-base font-bold tracking-tight text-slate-900 leading-none">ACNS-DSIG</span>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-sky-100 text-sky-800 border border-sky-200">v2.4</span>
+                        <span class="text-[17px] font-black tracking-tight text-slate-900 leading-none font-sans">ACNS-DSIG</span>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200/80 shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
+                            v2.4
+                        </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Digital Document Authentication</p>
+                    <p class="text-[11px] text-slate-500 font-medium tracking-tight mt-0.5 hidden sm:block">Digital Document Authentication</p>
                 </div>
             </a>
         </div>
@@ -26,27 +32,35 @@
         <div class="flex items-center gap-3"
              th:if="${isAuthenticated != null ? isAuthenticated : (#authentication != null and #authentication.name != 'anonymousUser')}"
              sec:authorize="isAuthenticated()">
-            <!-- Main Navigation Links -->
-            <nav class="hidden md:flex items-center gap-1 bg-slate-100/70 p-1 rounded-xl border border-slate-200/60 shadow-2xs">
-                <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Dashboard</a>
-                <a th:href="@{/keys}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Keys</a>
-                <a th:href="@{/sign}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Sign</a>
-                <a th:href="@{/verify}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Verify</a>
-                <a th:href="@{/trust}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">Trust Store</a>
-                <a th:href="@{/history}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-sky-700 hover:bg-white transition-colors">History</a>
-                <a th:if="${isAdmin != null ? isAdmin : false}" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-purple-700 hover:text-purple-900 hover:bg-white transition-colors">Audit</a>
+            <!-- Main Navigation Links (Segmented Control Island) -->
+            <nav class="hidden md:flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/80 shadow-inner">
+                <a th:href="@{/dashboard}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-sky-700 hover:bg-white hover:shadow-xs transition-all duration-150 active:scale-95">Dashboard</a>
+                <a th:href="@{/keys}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-sky-700 hover:bg-white hover:shadow-xs transition-all duration-150 active:scale-95">Keys</a>
+                <a th:href="@{/sign}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-sky-700 hover:bg-white hover:shadow-xs transition-all duration-150 active:scale-95">Sign</a>
+                <a th:href="@{/verify}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-sky-700 hover:bg-white hover:shadow-xs transition-all duration-150 active:scale-95">Verify</a>
+                <a th:href="@{/trust}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-sky-700 hover:bg-white hover:shadow-xs transition-all duration-150 active:scale-95">Trust Store</a>
+                <a th:href="@{/history}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-sky-700 hover:bg-white hover:shadow-xs transition-all duration-150 active:scale-95">History</a>
+                <a th:if="${isAdmin != null ? isAdmin : false}" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-purple-700 hover:text-purple-900 hover:bg-purple-50/80 hover:shadow-xs border border-transparent hover:border-purple-200/60 transition-all duration-150 active:scale-95">Audit</a>
             </nav>
 
             <!-- User Info Chip & Logout Button -->
             <div class="flex items-center gap-2">
-                <div class="hidden sm:flex items-center gap-1.5 bg-white/70 px-2.5 py-1 rounded-lg border border-slate-200/80 text-xs font-medium text-slate-700 shadow-2xs">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span th:text="${currentUsername != null ? currentUsername : 'User'}" sec:authentication="name" class="font-semibold text-slate-800">User</span>
+                <div class="hidden sm:flex items-center gap-2 bg-white/80 pl-2 pr-3 py-1.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                    <div class="relative w-6 h-6 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shadow-2xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                        <span class="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 ring-1 ring-white"></span>
+                        </span>
+                    </div>
+                    <span th:text="${currentUsername != null ? currentUsername : 'User'}" sec:authentication="name" class="font-semibold text-xs text-slate-800">User</span>
                 </div>
 
                 <form th:action="@{/logout}" method="post" class="inline m-0">
-                    <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50/80 border border-slate-200/80 hover:border-rose-200 transition-colors shadow-2xs cursor-pointer flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-rose-600 bg-white/60 hover:bg-rose-50/80 border border-slate-200/80 hover:border-rose-200/80 shadow-2xs hover:shadow-xs transition-all duration-150 active:scale-95 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-rose-500 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                         </svg>
                         <span>Logout</span>
@@ -56,25 +70,25 @@
         </div>
 
         <!-- Unauthenticated Navigation Links -->
-        <div class="flex items-center space-x-2"
+        <div class="flex items-center space-x-2.5"
              th:if="${isAuthenticated != null ? !isAuthenticated : (#authentication == null or #authentication.name == 'anonymousUser')}"
              sec:authorize="!isAuthenticated()">
-            <a th:href="@{/login}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-white/80 border border-slate-200/60 hover:border-slate-300 transition-colors">Login</a>
-            <a th:href="@{/register}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-sky-700 hover:bg-sky-800 transition-colors shadow-sm rounded-lg">Register</a>
+            <a th:href="@{/login}" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-sky-700 bg-white/70 hover:bg-white border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all duration-150 active:scale-95">Login</a>
+            <a th:href="@{/register}" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-sm hover:shadow hover:shadow-sky-500/25 transition-all duration-150 active:scale-95">Register</a>
         </div>
     </div>
 
     <!-- Mobile Navigation Sub-Bar (for screens under md) -->
-    <div class="md:hidden border-t border-slate-200/50 px-4 py-2 bg-white/40 overflow-x-auto flex items-center gap-1 text-xs font-semibold text-slate-700"
+    <div class="md:hidden border-t border-slate-200/60 px-4 py-2 bg-white/60 backdrop-blur-md overflow-x-auto flex items-center gap-1.5 text-xs font-semibold text-slate-700"
          th:if="${isAuthenticated != null ? isAuthenticated : (#authentication != null and #authentication.name != 'anonymousUser')}"
          sec:authorize="isAuthenticated()">
-        <a th:href="@{/dashboard}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Dashboard</a>
-        <a th:href="@{/keys}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Keys</a>
-        <a th:href="@{/sign}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Sign</a>
-        <a th:href="@{/verify}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Verify</a>
-        <a th:href="@{/trust}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">Trust Store</a>
-        <a th:href="@{/history}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap">History</a>
-        <a th:if="${isAdmin != null ? isAdmin : false}" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-2.5 py-1 rounded-md hover:bg-white whitespace-nowrap text-purple-700">Audit</a>
+        <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white hover:text-sky-700 border border-slate-200/50 shadow-2xs whitespace-nowrap transition-colors">Dashboard</a>
+        <a th:href="@{/keys}" class="px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white hover:text-sky-700 border border-slate-200/50 shadow-2xs whitespace-nowrap transition-colors">Keys</a>
+        <a th:href="@{/sign}" class="px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white hover:text-sky-700 border border-slate-200/50 shadow-2xs whitespace-nowrap transition-colors">Sign</a>
+        <a th:href="@{/verify}" class="px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white hover:text-sky-700 border border-slate-200/50 shadow-2xs whitespace-nowrap transition-colors">Verify</a>
+        <a th:href="@{/trust}" class="px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white hover:text-sky-700 border border-slate-200/50 shadow-2xs whitespace-nowrap transition-colors">Trust Store</a>
+        <a th:href="@{/history}" class="px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white hover:text-sky-700 border border-slate-200/50 shadow-2xs whitespace-nowrap transition-colors">History</a>
+        <a th:if="${isAdmin != null ? isAdmin : false}" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}" class="px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100/80 hover:text-purple-900 border border-purple-200/60 text-purple-700 whitespace-nowrap transition-colors">Audit</a>
     </div>
 </header>
 </body>
