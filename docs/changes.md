@@ -279,3 +279,22 @@ Pure Java library containing all cryptographic, key management, envelope codec, 
 
 6. **Documentation & Instructions**:
    - Updated `README.md` with dedicated section 5 covering test suite commands, microbenchmark execution, fuzz testing, and PowerShell/Bash demo scripts.
+
+---
+
+## [Phase 4: UI Hardening, Anonymization & 9-Member Technical Presentation Suite] - 2026-10-12
+
+1. **Header Navigation & Multi-Layer Authentication State Separation**:
+   - Resolved concurrent display of `Login`, `Register`, and `Logout` by implementing `GlobalSecurityModelAdvice` exposing `isAuthenticated`, `currentUsername`, and `isAdmin` directly into the Spring MVC Model.
+   - Registered explicit `@Bean public SpringSecurityDialect springSecurityDialect()` in `SecurityConfig.java`.
+   - Updated `header.html` with dual-tier gating (`th:if` + `sec:authorize`), making it mathematically impossible for authenticated and unauthenticated controls to render simultaneously.
+   - Added `DashboardControllerTest#testUnauthenticatedNavbarShowsLoginRegisterAndHidesLogout` asserting complete UI separation across authentication states.
+
+2. **Dashboard UI Refinement & Full Codebase Anonymization**:
+   - Fixed spacing and layout of the RSA-PSS Engine showcase card on `dashboard.html`.
+   - Anonymized all user-facing UI badges, headings, and code comments, replacing personal attributions with standard technical subsystem labels (`Cryptographic Subsystem • Asymmetric Engine`).
+
+3. **Exhaustive 9-Member Presentation & Viva Script**:
+   - Created `docs/PRESENTATION_AND_VIVA_SCRIPT_9_MEMBERS.md` distributing the full project architecture cleanly across 9 peer roles (Member 1 through Member 9).
+   - Provided exact speaking scripts, code pointers, live demonstration steps, mermaid flowcharts, and technical viva answers for each member.
+

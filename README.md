@@ -358,3 +358,16 @@ bash scripts/fuzz.sh
   ```
 - **File Upload Limits:**  
   Document upload size is capped at **50 MB**; signature envelopes (`.dsig.json`) are strictly capped at **512 KB** via `UploadGuard` to prevent denial-of-service memory exhaustion.
+
+---
+
+## 9. Presentation, Demonstration & Technical Viva Guide
+
+For project defense, evaluations, and live system walkthroughs, a comprehensive **9-Member Technical Presentation & Viva Script** is available in:
+- **[`docs/PRESENTATION_AND_VIVA_SCRIPT_9_MEMBERS.md`](file:///home/tanmayy/CLG_RELATED_PROJECTS/CNS_ISE_PROJECT/acns-dsig/docs/PRESENTATION_AND_VIVA_SCRIPT_9_MEMBERS.md)**
+
+This document details:
+1. Balanced technical allocations for 9 members covering Core Crypto, Format & Manifest, Verification, Database/Persistence, Web UI, and Security/CLI.
+2. Exact speaking scripts and live demonstration instructions for each member.
+3. In-depth technical viva questions and verified answers rooted in the codebase.
+4. Mermaid sequence diagram illustrating the complete live viva workflow.
