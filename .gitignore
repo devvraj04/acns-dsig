@@ -47,3 +47,5 @@ runtime/uploads-tmp/
 *.key
 *.pk8
 !test-data/*.pem
+.env
+.env.local

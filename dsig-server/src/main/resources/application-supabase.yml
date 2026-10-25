@@ -1,0 +1,25 @@
+# ============================================================================
+# Supabase Profile Configuration (application-supabase.yml)
+# Activate with: --spring.profiles.active=supabase or SPRING_PROFILES_ACTIVE=supabase
+# ============================================================================
+
+spring:
+  datasource:
+    url: ${SUPABASE_DB_URL:jdbc:postgresql://db.rflbrznukanmehecxevf.supabase.co:5432/postgres?sslmode=require}
+    driver-class-name: org.postgresql.Driver
+    username: ${SUPABASE_DB_USER:postgres}
+    password: ${SUPABASE_DB_PASSWORD:cns_dsig123}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate.type.preferred_clob_jdbc_type: LONGVARCHAR
+    show-sql: false
+    open-in-view: false
+
+# Supabase API & Project Keys (from Project Settings -> API)
+supabase:
+  url: ${SUPABASE_URL:https://rflbrznukanmehecxevf.supabase.co}
+  anon-key: ${SUPABASE_ANON_KEY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmbGJyem51a2FubWVoZWN4ZXZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5Mjk2NDMsImV4cCI6MjEwODUwNTY0M30.pxIoriJplmSlOnTUvxk5oy-CYrb_qSjei6p9IWGmy0Y}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmbGJyem51a2FubWVoZWN4ZXZmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MjkyOTY0MywiZXhwIjoyMTA4NTA1NjQzfQ.YDrUHp_dZwvsAF0RHwLkvXEX4-ShQfhx17cx3K2mJjM}
