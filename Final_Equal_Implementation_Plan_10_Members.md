@@ -12,7 +12,7 @@ This plan keeps the master implementation plan unchanged in scope, architecture,
 | Tanmay Vishwakarma | RSA-PSS Signature Engine | SignatureService, signature parameters | RSA-PSS sign/verify implementation, crypto tests |
 | Atharv Vedant | Key Generation & Secure Key Storage | KeyService, encrypted PKCS#8 storage | Key lifecycle, PEM handling, key tests |
 | Parth Zala | Manifest, Envelope & Format | Manifest, EnvelopeCodec, strict parsing | `.dsig.json`, FORMAT.md, format tests |
-| Nityanand Upadhyay | Users, Database & Authentication | H2 schema, users, sessions, roles, persistence | Database, auth, history/trust persistence, backend tests |
+| Nityanand Upadhyay | User , Database & Authentication | H2 schema, users, sessions, roles, persistence | Database, auth, history/trust persistence, backend tests |
 | KVS Varshith | Signing Web Interface & Sign Flow | Thymeleaf sign/key screens and integration | Sign UI, key UI, frontend validation |
 | Jay Pandya | Verification Web Interface & Trust UI | Verify/result/trust/history screens | Verification UI, trust UI, result visualization |
 | Diyaan Rambhia | Network & Application Security | TLS, CSRF, secure uploads, rate limiting, headers | Security configuration, security tests |
